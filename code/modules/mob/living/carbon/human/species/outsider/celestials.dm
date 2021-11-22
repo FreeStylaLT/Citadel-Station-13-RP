@@ -37,6 +37,8 @@
 	toxins_mod = 0.85
 
 	inherent_verbs = list(
+		/mob/living/carbon/alien/auril/proc/peer_through,
+		/mob/living/carbon/alien/auril/proc/bellow,
 		/mob/living/carbon/human/proc/tie_hair,
 		/mob/living/carbon/human/proc/lick_wounds,
 		/mob/living/proc/flying_toggle,
@@ -44,6 +46,7 @@
 		/mob/living/proc/toggle_pass_table,
 		/mob/living/proc/glow_toggle,
 		/mob/living/proc/glow_color)
+
 
 /datum/species/dremachir
 	name = SPECIES_DREMACHIR
