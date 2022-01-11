@@ -750,6 +750,15 @@
 		set_species()
 	return species.name
 
+/mob/living/carbon/human/proc/get_chimerastatus()
+	if(!species)
+		return FALSE
+	else if(species.flags & CHIMERA_COMPATIBLE)
+		return TRUE
+	else
+		return FALSE
+
+
 /mob/living/carbon/human/proc/play_xylophone()
 	if(!src.xylophone)
 		var/datum/gender/T = gender_datums[get_visible_gender()]

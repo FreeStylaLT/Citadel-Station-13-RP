@@ -12,6 +12,7 @@
 #define NO_INFECT		  		(1 << 10) // Don't allow infections in limbs or organs, similar to IS_PLANT, without other strings.
 #define NO_DEFIB          		(1 << 11) // Cannot be defibbed
 #define CONTAMINATION_IMMUNE 	(1 << 12) //(Phoron) Contamination doesnt affect them.
+#define CHIMERA_COMPATIBLE		(1 << 13) // Will they become the non-antag changeling?
 // unused: 0x8000 - higher than this will overflow
 
 // Species spawn flags

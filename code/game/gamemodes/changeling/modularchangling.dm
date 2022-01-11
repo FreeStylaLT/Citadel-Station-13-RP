@@ -4,6 +4,24 @@
 
 var/list/powers = typesof(/datum/power/changeling) - /datum/power/changeling	//needed for the badmin verb for now
 var/list/datum/power/changeling/powerinstances = list()
+var/list/datum/power/changeling/chimerapowers = list(
+	/datum/power/changeling/claw,
+	/datum/power/changeling/bioelectrogenesis,
+	/datum/power/changeling/darksight,
+	/datum/power/changeling/DigitalCamoflague,
+	/datum/power/changeling/electric_lockpick,
+	/datum/power/changeling/endoarmor,
+	/datum/power/changeling/EngorgedGlands,
+	/datum/power/changeling/epinephrine_overdose,
+	/datum/power/changeling/fabricate_clothing,
+	/datum/power/changeling/fakedeath,
+	/datum/power/changeling/fleshmend,
+	/datum/power/changeling/mimicvoice,
+	/datum/power/changeling/panacea,
+	/datum/power/changeling/recursive_enhancement,
+	/datum/power/changeling/dissonant_shriek,
+	/datum/power/changeling/visible_camouflage
+)
 
 /datum/power			//Could be used by other antags too
 	var/name = "Power"
@@ -18,6 +36,7 @@ var/list/datum/power/changeling/powerinstances = list()
 /datum/power/changeling
 	var/allowduringlesserform = 0
 	var/genomecost = 500000 // Cost for the changling to evolve this power.
+	var/chimera_compatible = FALSE	// Is this usable by the chimera subantag?
 
 
 // Modularchangling, totally stolen from the new player panel.  YAYY
@@ -29,8 +48,18 @@ var/list/datum/power/changeling/powerinstances = list()
 	if(!usr || !usr.mind || !usr.mind.changeling)	return
 	src = usr.mind.changeling
 
-	if(!powerinstances.len)
+	var/is_chimera = FALSE
+
+	if(ishuman(usr.mind.current))
+		var/mob/living/carbon/human/H = usr.mind.current
+		if(H.get_chimerastatus())
+			is_chimera = TRUE
+
+	if(!powerinstances.len && !is_chimera)
 		for(var/P in powers)
+			powerinstances += new P()
+	else if (!powerinstances.len && is_chimera)
+		for(var/P in chimerapowers)
 			powerinstances += new P()
 
 	var/dat = "<html><head><title>Changling Evolution Menu</title></head>"

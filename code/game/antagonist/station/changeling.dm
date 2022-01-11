@@ -58,24 +58,28 @@
 
 /datum/antagonist/changeling/can_become_antag(var/datum/mind/player, var/ignore_role)
 	if(!..())
-		return 0
+		return FALSE
 	if(player.current)
 		if(ishuman(player.current))
 			var/mob/living/carbon/human/H = player.current
 			if(H.isSynthetic())
-				return 0
+				return FALSE
+			if(H.species.flags & CHIMERA_COMPATIBLE)
+				return TRUE
 			if(H.species.flags & NO_SCAN)
-				return 0
-			return 1
+				return FALSE
+			return TRUE
 		else if(isnewplayer(player.current))
 			if(player.current.client && player.current.client.prefs)
 				var/datum/species/S = GLOB.all_species[player.current.client.prefs.species]
+				if(S && (S.flags & CHIMERA_COMPATIBLE))
+					return TRUE
 				if(S && (S.flags & NO_SCAN))
-					return 0
+					return FALSE
 				if(player.current.client.prefs.organ_data["torso"] == "cyborg") // Full synthetic.
-					return 0
-				return 1
-	return 0
+					return FALSE
+				return TRUE
+	return FALSE
 
 /datum/antagonist/changeling/print_player_full(var/datum/mind/ply)
 	var/text = print_player_lite(ply)
@@ -86,3 +90,28 @@
 		text += "<br>Bought [english_list(ling_datum.purchased_powers_history)]."
 
 	return text
+
+/datum/antagonist/changeling/chimera
+	role_type = BE_CHIMERA
+	role_text = "Chimera"
+	role_text_plural = "Chimeras"
+	bantype = "chimera"
+
+/datum/antagonist/changeling/chimera/can_become_antag(var/datum/mind/player, var/ignore_role)
+	if(!..())
+		return 0
+	if(player.current)
+		if(ishuman(player.current))
+			var/mob/living/carbon/human/H = player.current
+			return H.get_chimerastatus()
+		else if (isnewplayer(player.current))
+			var/datum/species/S = GLOB.all_species[player.current.client.prefs.species]
+			if(S && S.flags & CHIMERA_COMPATIBLE)
+				return 1
+			else
+				return 0
+	return 0
+
+
+/datum/antagonist/changeling/chimera/create_objectives(var/datum/mind/changeling) 		//let's not just yet
+	return

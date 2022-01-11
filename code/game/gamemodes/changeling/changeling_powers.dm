@@ -69,9 +69,18 @@ var/global/list/possible_changeling_IDs = list("Alpha","Beta","Gamma","Delta","E
 	add_language("Changeling")
 
 	var/lesser_form = !ishuman(src)
+	var/is_chimera = FALSE
 
-	if(!powerinstances.len)
+	if(ishuman(usr.mind.current))
+		var/mob/living/carbon/human/H = usr.mind.current
+		if(H.get_chimerastatus())
+			is_chimera = TRUE
+
+	if(!powerinstances.len && !is_chimera)
 		for(var/P in powers)
+			powerinstances += new P()
+	else if (!powerinstances.len && is_chimera)
+		for(var/P in chimerapowers)
 			powerinstances += new P()
 
 	// Code to auto-purchase free powers.
