@@ -38,7 +38,7 @@
 	max_universal_equip = 1
 	max_special_equip = 1
 
-/obj/mecha/combat/fighter/Initialize()
+/obj/mecha/combat/fighter/Initialize(mapload)
 	. = ..()
 	ion_trail = new /datum/effect_system/ion_trail_follow()
 	ion_trail.set_up(src)
@@ -164,7 +164,10 @@
 
 // No falling if we've got our boosters on
 /obj/mecha/combat/fighter/can_fall()
-	return (stabilization_enabled && has_charge(step_energy_drain))
+	if(stabilization_enabled && has_charge(step_energy_drain))
+		return FALSE
+	else
+		return TRUE
 
 /obj/mecha/combat/fighter/proc/consider_gravity(var/moved = FALSE)
 	var/gravity = has_gravity()
@@ -219,6 +222,14 @@
 	else
 		who << sound('sound/mecha/fighter_entered.ogg',volume=50)
 
+//causes damage when running into objects
+/obj/mecha/combat/fighter/Bump(atom/obstacle)
+	. = ..()
+	if(istype(obstacle, /obj) || istype(obstacle, /turf))
+		occupant_message("<B><FONT COLOR=red SIZE=+1>Collision Alert!</B></FONT>")
+		take_damage(20, "brute")
+		playsound(src, 'sound/effects/grillehit.ogg', 50, 1)
+
 ////////////// Gunpod //////////////
 
 /obj/mecha/combat/fighter/gunpod
@@ -241,14 +252,14 @@
 	var/image/stripe1_overlay
 	var/image/stripe2_overlay
 
-/obj/mecha/combat/fighter/gunpod/loaded/Initialize() //Loaded version with gans
+/obj/mecha/combat/fighter/gunpod/loaded/Initialize(mapload) //Loaded version with gans
 	. = ..()
 	var/obj/item/mecha_parts/mecha_equipment/ME = new /obj/item/mecha_parts/mecha_equipment/weapon/energy/laser
 	ME.attach(src)
 	ME = new /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/explosive
 	ME.attach(src)
 
-/obj/mecha/combat/fighter/gunpod/recon/Initialize() //Blinky
+/obj/mecha/combat/fighter/gunpod/recon/Initialize(mapload) //Blinky
 	. = ..()
 	var/obj/item/mecha_parts/mecha_equipment/ME = new /obj/item/mecha_parts/mecha_equipment/teleporter(src)
 	ME.attach(src)
@@ -313,7 +324,7 @@
 
 	ground_capable = FALSE
 
-/obj/mecha/combat/fighter/baron/loaded/Initialize() //Loaded version with gans
+/obj/mecha/combat/fighter/baron/loaded/Initialize(mapload) //Loaded version with gans
 	. = ..()
 	var/obj/item/mecha_parts/mecha_equipment/ME = new /obj/item/mecha_parts/mecha_equipment/weapon/energy/laser
 	ME.attach(src)
@@ -350,7 +361,7 @@
 
 	ground_capable = FALSE
 
-/obj/mecha/combat/fighter/scoralis/loaded/Initialize() //Loaded version with gans
+/obj/mecha/combat/fighter/scoralis/loaded/Initialize(mapload) //Loaded version with gans
 	. = ..()
 	var/obj/item/mecha_parts/mecha_equipment/ME = new /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/lmg
 	ME.attach(src)
@@ -389,7 +400,7 @@
 	health = 500
 	maxhealth = 500
 
-/obj/mecha/combat/fighter/allure/loaded/Initialize() //Loaded version with gans
+/obj/mecha/combat/fighter/allure/loaded/Initialize(mapload) //Loaded version with gans
 	. = ..()
 	var/obj/item/mecha_parts/mecha_equipment/ME = new /obj/item/mecha_parts/mecha_equipment/cloak
 	ME.attach(src)
@@ -413,14 +424,14 @@
 
 /obj/mecha/combat/fighter/pinnace
 	name = "pinnace"
-	desc = "A cramped ship's boat, capable of atmospheric and space flight. Not capable of mounting weapons. Capable of fitting one pilot and one passenger."
+	desc = "A cramped ship's boat, capable of atmospheric and space flight. Not capable of mounting traditional weapons. Capable of fitting one pilot and one passenger."
 	icon = 'icons/mecha/fighters64x64.dmi'
 	icon_state = "pinnace"
 	initial_icon = "pinnace"
 
 	max_hull_equip = 1
 	max_weapon_equip = 0
-	max_utility_equip = 0
+	max_utility_equip = 1
 	max_universal_equip = 0
 	max_special_equip = 1
 
@@ -429,7 +440,7 @@
 
 	ground_capable = TRUE
 
-/obj/mecha/combat/fighter/pinnace/loaded/Initialize() //Loaded version with gans
+/obj/mecha/combat/fighter/pinnace/loaded/Initialize(mapload) //Loaded version with gans
 	. = ..()
 	var/obj/item/mecha_parts/mecha_equipment/ME = new /obj/item/mecha_parts/mecha_equipment/tool/passenger
 	ME.attach(src)
@@ -448,6 +459,45 @@
 	drive means that it can't get too far from it's parent ship. Though the pinnace is typically unarmed, \
 	it is capable of atmospheric flight and escaping most pursuing fighters by diving into the atmosphere of \
 	nearby planets to seek cover."
+	value = CATALOGUER_REWARD_MEDIUM
+
+
+////////////// Cludge //////////////
+
+/obj/mecha/combat/fighter/cludge
+	name = "Cludge"
+	desc = "A heater, nozzle, and fuel tank strapped together. There are exposed wires strewn about it."
+	icon = 'icons/mecha/fighters64x64.dmi'
+	icon_state = "cludge"
+	initial_icon = "cludge"
+
+	health = 100
+	maxhealth = 100
+
+	max_hull_equip = 0
+	max_weapon_equip = 0
+	max_utility_equip = 0
+	max_universal_equip = 0
+	max_special_equip = 0
+
+	catalogue_data = list(/datum/category_item/catalogue/technology/cludge)
+	wreckage = /obj/effect/decal/mecha_wreckage/cludge
+
+	ground_capable = TRUE
+
+/obj/effect/decal/mecha_wreckage/cludge
+	name = "Cludge wreckage"
+	desc = "It doesn't look much different than it normally does. Completely unrepairable."
+	icon = 'icons/mecha/fighters64x64.dmi'
+	icon_state = "cludge-broken"
+	bound_width = 64
+	bound_height = 64
+
+/datum/category_item/catalogue/technology/cludge
+	name = "Voidcraft - Cludge"
+	desc = "A collection of parts strapped together in an attempt to make a flying vessel. Such vessels are fragile, unstable \
+	and very easily break apart, due to their roughshod engineering. These vessels commonly are built without critical components \
+	such as life support, or armor plating."
 	value = CATALOGUER_REWARD_MEDIUM
 
 #undef NOGRAV_FIGHTER_DAMAGE

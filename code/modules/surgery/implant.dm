@@ -79,6 +79,7 @@
 	allowed_tools = list(
 		/obj/item/surgical/cautery = 100,			\
 		/obj/item/clothing/mask/smokable/cigarette = 75,	\
+		/obj/item/surgical/cautery_primitive = 70,	\
 		/obj/item/flame/lighter = 50,			\
 		/obj/item/weldingtool = 25
 	)
@@ -118,8 +119,8 @@
 /datum/surgery_step/cavity/place_item/can_use(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
 	if(..())
 		var/obj/item/organ/external/affected = target.get_organ(target_zone)
-		if(istype(user,/mob/living/silicon/robot))
-			return
+		//if(istype(user,/mob/living/silicon/robot))
+			//return
 		if(affected && affected.cavity)
 			var/total_volume = tool.w_class
 			for(var/obj/item/I in affected.implants)
@@ -145,10 +146,12 @@
 		var/datum/wound/internal_bleeding/I = new (10)
 		affected.wounds += I
 		affected.owner.custom_pain("You feel something rip in your [affected.name]!", 1)
-	user.drop_item()
+	if(!user.transfer_item_to_loc(tool, affected))
+		return
 	affected.implants += tool
-	tool.loc = affected
-	if(istype(tool,/obj/item/nif)){var/obj/item/nif/N = tool;N.implant(target)} //VOREStation Add - NIF support
+	if(istype(tool,/obj/item/nif))
+		var/obj/item/nif/N = tool
+		N.implant(target)
 	affected.cavity = 0
 
 //////////////////////////////////////////////////////////////////
@@ -158,6 +161,7 @@
 /datum/surgery_step/cavity/implant_removal
 	allowed_tools = list(
 		/obj/item/surgical/hemostat = 100,	\
+		/obj/item/surgical/hemostat_primitive = 50, \
 		/obj/item/material/kitchen/utensil/fork = 20
 	)
 
@@ -206,7 +210,7 @@
 			"<font color=#4F49AF>You take [obj] out of incision on [target]'s [affected.name]s with \the [tool]!</font>" )
 			affected.implants -= obj
 
-			BITSET(target.hud_updateflag, IMPLOYAL_HUD)
+			target.update_hud_sec_implants()
 
 			//Handle possessive brain borers.
 			if(istype(obj,/mob/living/simple_mob/animal/borer))
@@ -225,7 +229,7 @@
 					imp.implanted = 0
 					if(istype(obj, /obj/item/implant/mirror))
 						target.mirror = null
-				else if(istype(tool,/obj/item/nif)){var/obj/item/nif/N = tool;N.unimplant(target)} //VOREStation Add - NIF support
+				else if(istype(tool,/obj/item/nif)){var/obj/item/nif/N = tool;N.unimplant(target)}
 		else
 			user.visible_message("<font color=#4F49AF>[user] removes \the [tool] from [target]'s [affected.name].</font>", \
 			"<font color=#4F49AF>There's something inside [target]'s [affected.name], but you just missed it this time.</font>" )

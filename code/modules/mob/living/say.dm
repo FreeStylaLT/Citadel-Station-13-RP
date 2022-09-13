@@ -98,6 +98,11 @@ proc/get_radio_key_from_channel(var/channel)
 	var/whispering = message_data[3]
 	. = 0
 
+	if(HAS_TRAIT(src, silent) || silent)
+		. = TRUE
+		message_data[1] = ""
+		return
+
 	if((HULK in mutations) && health >= 25 && length_char(message))
 		message = "[uppertext(message)]!!!"
 		verb = pick("yells","roars","hollers")
@@ -111,12 +116,10 @@ proc/get_radio_key_from_channel(var/channel)
 		message = stutter(message)
 		verb = pick("stammers","stutters")
 		. = 1
-	//VOREStation Edit Start
 	if(muffled)
 		verb = pick("muffles")
 		whispering = 1
 		. = 1
-	//VOREStation Edit End
 
 	message_data[1] = message
 	message_data[2] = verb
@@ -147,7 +150,7 @@ proc/get_radio_key_from_channel(var/channel)
 	if(client)
 		if(message)
 			client.handle_spam_prevention(MUTE_IC)
-			if((client.prefs.muted & MUTE_IC) || say_disabled)
+			if((client.prefs.muted & MUTE_IC))
 				to_chat(src, "<span class='warning'>You cannot speak in IC (Muted).</span>")
 				return
 
@@ -206,6 +209,10 @@ proc/get_radio_key_from_channel(var/channel)
 	if(speaking && (speaking.flags & HIVEMIND))
 		speaking.broadcast(src,trim(message))
 		return 1
+
+	if(HAS_TRAIT(GLOB, TRAIT_MUTE))
+		to_chat(src, "<span class='danger'>You are not capable of speech!</span>")
+		return
 
 	//Self explanatory.
 	if(is_muzzled() && !(speaking && (speaking.flags & SIGNLANG)))
@@ -292,8 +299,8 @@ proc/get_radio_key_from_channel(var/channel)
 		message_range = 1
 		sound_vol *= 0.5
 
-	//VOREStation edit - allows for custom say verbs, overriding all other say-verb types- e.g. "says loudly" instead of "shouts"
-	//You'll still stammer if injured or slur if drunk, but it won't have those specific words
+	/// Allows for custom say verbs, overriding all other say-verb types- e.g. "says loudly" instead of "shouts"
+	/// You'll still stammer if injured or slur if drunk, but it won't have those specific words
 	var/ending = copytext_char(message, length_char(message))
 
 	if(custom_whisper && whispering)
@@ -304,7 +311,6 @@ proc/get_radio_key_from_channel(var/channel)
 		verb = "[custom_ask]"
 	else if(custom_say)
 		verb = "[custom_say]"
-	//VOREStation edit ends
 
 	//Handle nonverbal and sign languages here
 	if (speaking)
@@ -346,9 +352,8 @@ proc/get_radio_key_from_channel(var/channel)
 
 	//The 'post-say' static speech bubble
 	var/speech_bubble_test = say_test(message)
-	//var/image/speech_bubble = image('icons/mob/talk_vr.dmi',src,"h[speech_bubble_test]") //VOREStation Edit. Commented this out in case we need to reenable.
 	var/speech_type = speech_bubble_appearance()
-	var/image/speech_bubble = image('icons/mob/talk_vr.dmi',src,"[speech_type][speech_bubble_test]") //VOREStation Edit - talk_vr.dmi instead of talk.dmi for right-side icons
+	var/image/speech_bubble = image('icons/mob/talk_vr.dmi',src,"[speech_type][speech_bubble_test]")
 	var/sb_alpha = 255
 	var/atom/loc_before_turf = src
 	if(isbelly(loc))
@@ -368,7 +373,7 @@ proc/get_radio_key_from_channel(var/channel)
 		var/turf/ST = get_turf(above)
 		if(ST)
 			var/list/results = get_mobs_and_objs_in_view_fast(ST, world.view)
-			var/image/z_speech_bubble = image('icons/mob/talk_vr.dmi', above, "h[speech_bubble_test]") //VOREStation Edit - talk_vr.dmi instead of talk.dmi for right-side icons
+			var/image/z_speech_bubble = image('icons/mob/talk_vr.dmi', above, "h[speech_bubble_test]")
 			images_to_clients[z_speech_bubble] = list()
 			for(var/item in results["mobs"])
 				if(item != above && !(item in listening))

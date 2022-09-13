@@ -4,7 +4,7 @@
 	icon_state = "helmet"
 	valid_accessory_slots = (ACCESSORY_SLOT_HELM_C)
 	restricted_accessory_slots = (ACCESSORY_SLOT_HELM_C)
-	flags = THICKMATERIAL
+	clothing_flags = THICKMATERIAL
 	armor = list(melee = 40, bullet = 30, laser = 30, energy = 10, bomb = 10, bio = 0, rad = 0)
 	flags_inv = HIDEEARS|BLOCKHEADHAIR
 	cold_protection = HEAD
@@ -75,7 +75,7 @@
 	else
 		src.icon_state = initial(icon_state)
 		to_chat(user, "You lower the visor on the riot helmet.")
-	update_clothing_icon()	//so our mob-overlays update
+	update_worn_icon()	//so our mob-overlays update
 
 /obj/item/clothing/head/helmet/laserproof
 	name = "ablative helmet"
@@ -157,14 +157,19 @@
 	siemens_coefficient = 1
 	valid_accessory_slots = null
 
+/obj/item/clothing/head/helmet/gladiator/ashlander
+	name = "ashlander kranos"
+	desc = "This weathered helmet bears a collection of acidic pits and claw marks."
+	armor = list(melee = 5, bullet = 5, laser = 5,energy = 0, bomb = 0, bio = 0, rad = 0)
+
 /obj/item/clothing/head/helmet/tactical
 	name = "tactical helmet"
 	desc = "An armored helmet capable of being fitted with a multitude of attachments."
 	icon_state = "swathelm"
 	item_state_slots = list(slot_r_hand_str = "swat", slot_l_hand_str = "swat")
 	sprite_sheets = list(
-		SPECIES_TAJ = 'icons/mob/species/tajaran/helmet.dmi',
-		SPECIES_UNATHI = 'icons/mob/species/unathi/helmet.dmi',
+		SPECIES_TAJ = 'icons/mob/clothing/species/tajaran/helmet.dmi',
+		SPECIES_UNATHI = 'icons/mob/clothing/species/unathi/helmet.dmi',
 		)
 
 	armor = list(melee = 60, bullet = 60, laser = 60, energy = 40, bomb = 40, bio = 0, rad = 0)
@@ -268,7 +273,7 @@
 		flash_protection = FLASH_PROTECTION_MAJOR
 		src.icon_state = initial(icon_state)
 		to_chat(user, "<font color=#4F49AF>The helmet's protective sigil glows as you lower the OM visor.</font>")
-	update_clothing_icon()	//so our mob-overlays update
+	update_worn_icon()	//so our mob-overlays update
 
 	if(!user.mind.isholy)
 		flash_protection = FLASH_PROTECTION_NONE
@@ -323,19 +328,38 @@
 	desc = "If you wanna to keep your brain inside yo' head, you'd best put this on!"
 	icon_state = "unsc_helm"
 	item_state = "unsc_helm"
-	icon = 'icons/obj/clothing/hats_vr.dmi'
-	icon_override = 'icons/mob/head_vr.dmi'
+	icon = 'icons/obj/clothing/hats.dmi'
 
 /obj/item/clothing/head/helmet/combat/imperial
 	name = "imperial soldier helmet"
 	desc = "Veni, vidi, vici; I came, I saw, I conquered."
 	icon_state = "ge_helm"
-	icon = 'icons/obj/clothing/hats_vr.dmi'
-	icon_override = 'icons/mob/head_vr.dmi'
+	icon = 'icons/obj/clothing/hats.dmi'
 
 /obj/item/clothing/head/helmet/combat/imperial/centurion
 	name = "imperial centurion helmet"
 	desc = "Vendi, vidi, visa; I came, I saw, I realised this hat was too expensive."
 	icon_state = "ge_helmcent"
-	icon = 'icons/obj/clothing/hats_vr.dmi'
-	icon_override = 'icons/mob/head_vr.dmi'
+	icon = 'icons/obj/clothing/hats.dmi'
+
+//Pirate
+/obj/item/clothing/head/helmet/pirate
+	name = "defaced helmet"
+	desc = "A helmet whose prior lettering has been defaced and painted over."
+	icon_state = "helmet_pirate"
+
+//Cyberpunk
+/obj/item/clothing/head/helmet/cyberpunk
+	name = "cyberpunk goggles"
+	desc = "These armored goggles help to augment the sight of the wearer. Initially designed to allow the user to enter a fully immersive digital environment, they have since been phased out in favor of NIFs and personal VR suites."
+	icon = 'icons/obj/clothing/hats.dmi'
+	icon_state = "cyberpunkgoggle"
+
+//Strange Plate Armor
+/obj/item/clothing/head/helmet/kettle
+	name = "KTL plate helmet"
+	desc = "These rare helmets are believed to originate from an isolationist human society on the Eastern Rim. The meaning of the designation is unknown, leading to the popular moniker 'Kettle'."
+	icon_state = "kettle"
+
+/obj/item/clothing/head/helmet/kettle/eyes
+	icon_state = "kettle_eyes"

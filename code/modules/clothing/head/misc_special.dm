@@ -17,7 +17,7 @@
 	desc = "A head-mounted face cover designed to protect the wearer completely from space-arc eye."
 	icon_state = "welding"
 	item_state_slots = list(slot_r_hand_str = "welding", slot_l_hand_str = "welding")
-	matter = list(DEFAULT_WALL_MATERIAL = 3000, "glass" = 1000)
+	matter = list(MAT_STEEL = 3000, MAT_GLASS = 1000)
 	var/up = 0
 	armor = list(melee = 10, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 0, rad = 0)
 	flags_inv = (HIDEMASK|HIDEEARS|HIDEEYES|HIDEFACE)
@@ -60,7 +60,7 @@
 			flash_protection = FLASH_PROTECTION_NONE
 			tint = TINT_NONE
 			to_chat(usr, "You push the [src] up out of your face.")
-		update_clothing_icon()	//so our mob-overlays
+		update_worn_icon()	//so our mob-overlays
 		if (ismob(src.loc)) //should allow masks to update when it is opened/closed
 			var/mob/M = src.loc
 			M.update_inv_wear_mask()
@@ -121,7 +121,7 @@
 	var/turf/location = src.loc
 	if(istype(location, /mob/))
 		var/mob/living/carbon/human/M = location
-		if(M.item_is_in_hands(src) || M.head == src)
+		if(M.is_holding(src) || M.head == src)
 			location = M.loc
 
 	if (istype(location, /turf))
@@ -149,6 +149,7 @@
 	desc = "Perfect for winter in Siberia, da?"
 	icon_state = "ushankadown"
 	flags_inv = HIDEEARS
+	min_cold_protection_temperature = SPACE_SUIT_MIN_COLD_PROTECTION_TEMPERATURE
 
 /obj/item/clothing/head/ushanka/attack_self(mob/user as mob)
 	if(src.icon_state == "ushankadown")
@@ -186,10 +187,10 @@
 
 	update_icon(var/mob/living/carbon/human/user)
 		if(!istype(user)) return
-		var/icon/ears = new/icon("icon" = 'icons/mob/head.dmi', "icon_state" = "kitty")
+		var/icon/ears = new/icon("icon" = INV_HEAD_DEF_ICON, "icon_state" = "kitty")
 		ears.Blend(rgb(user.r_hair, user.g_hair, user.b_hair), ICON_ADD)
 
-		var/icon/earbit = new/icon("icon" = 'icons/mob/head.dmi', "icon_state" = "kittyinner")
+		var/icon/earbit = new/icon("icon" = INV_HEAD_DEF_ICON, "icon_state" = "kittyinner")
 		ears.Blend(earbit, ICON_OVERLAY)
 
 /obj/item/clothing/head/richard
@@ -244,9 +245,12 @@
 		START_PROCESSING(SSobj, src)
 		to_chat(H, flavor_equip)
 
-/obj/item/clothing/head/psy_crown/dropped(var/mob/living/carbon/human/H)
+/obj/item/clothing/head/psy_crown/dropped(mob/user, flags, atom/newLoc)
 	..()
 	STOP_PROCESSING(SSobj, src)
+	var/mob/living/carbon/human/H = user
+	if(!ishuman(H))
+		return
 	if(H.is_sentient())
 		if(loc == H) // Still inhand.
 			to_chat(H, flavor_unequip)

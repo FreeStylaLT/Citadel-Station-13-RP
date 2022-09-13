@@ -95,7 +95,7 @@
 		for(var/mob/M in src)//Failsafe so you can get mobs out
 			M.loc = get_turf(src)
 
-/obj/machinery/dna_scannernew/MouseDrop_T(var/mob/target, var/mob/user) //Allows borgs to clone people without external assistance
+/obj/machinery/dna_scannernew/MouseDroppedOnLegacy(var/mob/target, var/mob/user) //Allows borgs to clone people without external assistance
 	if(user.stat || user.lying || !Adjacent(user) || !target.Adjacent(user)|| !ishuman(target))
 		return
 	put_in(target)
@@ -117,9 +117,8 @@
 		to_chat(usr, "<span class='warning'>The subject cannot have abiotic items on.</span>")
 		return
 	usr.stop_pulling()
-	usr.client.perspective = EYE_PERSPECTIVE
-	usr.client.eye = src
-	usr.loc = src
+	usr.forceMove(src)
+	usr.update_perspective()
 	src.occupant = usr
 	src.icon_state = "scanner_1"
 	src.add_fingerprint(usr)
@@ -130,10 +129,9 @@
 		if(beaker)
 			to_chat(user, "<span class='warning'>A beaker is already loaded into the machine.</span>")
 			return
-
+		if(!user.attempt_insert_item_for_installation(item, src))
+			return
 		beaker = item
-		user.drop_item()
-		item.loc = src
 		user.visible_message("\The [user] adds \a [item] to \the [src]!", "You add \a [item] to \the [src]!")
 		return
 
@@ -143,8 +141,8 @@
 			return
 		var/obj/item/organ/internal/brain/brain = item
 		if(brain.clone_source)
-			user.drop_item()
-			brain.loc = src
+			if(!user.attempt_insert_item_for_installation(brain, src))
+				return
 			put_in(brain.brainmob)
 			src.add_fingerprint(user)
 			user.visible_message("\The [user] adds \a [item] to \the [src]!", "You add \a [item] to \the [src]!")
@@ -169,12 +167,10 @@
 	return
 
 /obj/machinery/dna_scannernew/proc/put_in(var/mob/M)
-	if(M.client)
-		M.client.perspective = EYE_PERSPECTIVE
-		M.client.eye = src
-	M.loc = src
-	src.occupant = M
-	src.icon_state = "scanner_1"
+	occupant = M
+	M.update_perspective()
+
+	icon_state = "scanner_1"
 
 	// search for ghosts, if the corpse is empty and the scanner is connected to a cloner
 	if(locate(/obj/machinery/computer/cloning, get_step(src, NORTH)) \
@@ -190,22 +186,19 @@
 	return
 
 /obj/machinery/dna_scannernew/proc/go_out()
-	if ((!( src.occupant ) || src.locked))
+	if(!occupant|| locked)
 		return
-	if (src.occupant.client)
-		src.occupant.client.eye = src.occupant.client.mob
-		src.occupant.client.perspective = MOB_PERSPECTIVE
 	if(istype(occupant,/mob/living/carbon/brain))
 		for(var/obj/O in src)
 			if(istype(O,/obj/item/organ/internal/brain))
-				O.loc = get_turf(src)
-				src.occupant.loc = O
+				O.forceMove(loc)
+				occupant.forceMove(O)
 				break
 	else
-		src.occupant.loc = src.loc
-	src.occupant = null
-	src.icon_state = "scanner_0"
-	return
+		occupant.forceMove(loc)
+	occupant.update_perspective()
+	occupant = null
+	icon_state = "scanner_0"
 
 /obj/machinery/dna_scannernew/ex_act(severity)
 	switch(severity)
@@ -268,8 +261,8 @@
 /obj/machinery/computer/scan_consolenew/attackby(obj/item/I as obj, mob/user as mob)
 	if (istype(I, /obj/item/disk/data)) //INSERT SOME diskS
 		if (!src.disk)
-			user.drop_item()
-			I.loc = src
+			if(!user.attempt_insert_item_for_installation(I, src))
+				return
 			src.disk = I
 			to_chat(user, "You insert [I].")
 			SSnanoui.update_uis(src) // update all UIs attached to src

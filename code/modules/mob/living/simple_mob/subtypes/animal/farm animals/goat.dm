@@ -35,7 +35,9 @@
 	ai_holder_type = /datum/ai_holder/simple_mob/retaliate
 
 	meat_amount = 4
-	meat_type = /obj/item/reagent_containers/food/snacks/meat
+	bone_amount = 2
+	hide_amount = 3
+	exotic_amount = 2
 
 	var/datum/reagents/udder = null
 
@@ -44,12 +46,13 @@
 	udder = new(50)
 	udder.my_atom = src
 
-/mob/living/simple_mob/animal/goat/Life()
-	. = ..()
-	if(.)
-		if(stat == CONSCIOUS)
-			if(udder && prob(5))
-				udder.add_reagent("milk", rand(5, 10))
+/mob/living/simple_mob/animal/goat/BiologicalLife(seconds, times_fired)
+	if((. = ..()))
+		return
+
+	if(stat != DEAD)
+		if(udder && prob(5))
+			udder.add_reagent("milk", rand(5, 10))
 
 		if(locate(/obj/effect/plant) in loc)
 			var/obj/effect/plant/SV = locate() in loc

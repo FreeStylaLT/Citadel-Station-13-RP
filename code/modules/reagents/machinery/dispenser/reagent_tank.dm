@@ -23,7 +23,7 @@
 
 	..()
 
-/obj/structure/reagent_dispensers/Initialize()
+/obj/structure/reagent_dispensers/Initialize(mapload)
 	var/datum/reagents/R = new/datum/reagents(5000)
 	reagents = R
 	R.my_atom = src
@@ -82,11 +82,11 @@
 /obj/structure/reagent_dispensers/watertank
 	name = "watertank"
 	desc = "A watertank."
-	icon = 'icons/obj/objects_vr.dmi' //VOREStation Edit
+	icon = 'icons/obj/objects_vr.dmi'
 	icon_state = "watertank"
 	amount_per_transfer_from_this = 10
 
-/obj/structure/reagent_dispensers/watertank/Initialize()
+/obj/structure/reagent_dispensers/watertank/Initialize(mapload)
 	. = ..()
 	reagents.add_reagent("water", 1000)
 
@@ -95,30 +95,29 @@
 	desc = "A highly-pressurized water tank made to hold vast amounts of water.."
 	icon_state = "watertank_high"
 
-/obj/structure/reagent_dispensers/watertank/high/Initialize()
+/obj/structure/reagent_dispensers/watertank/high/Initialize(mapload)
 	. = ..()
 	reagents.add_reagent("water", 4000)
 
 /obj/structure/reagent_dispensers/fueltank
 	name = "fueltank"
 	desc = "A fueltank."
-	icon = 'icons/obj/objects_vr.dmi' //VOREStation Edit
+	icon = 'icons/obj/objects_vr.dmi'
 	icon_state = "weldtank"
 	amount_per_transfer_from_this = 10
 	var/modded = 0
 	var/obj/item/assembly_holder/rig = null
 
-/obj/structure/reagent_dispensers/fueltank/Initialize()
+/obj/structure/reagent_dispensers/fueltank/Initialize(mapload)
 	. = ..()
 	reagents.add_reagent("fuel",1000)
 
-//VOREStation Add
 /obj/structure/reagent_dispensers/fueltank/high
 	name = "high-capacity fuel tank"
 	desc = "A highly-pressurized fuel tank made to hold vast amounts of fuel."
 	icon_state = "weldtank_high"
 
-/obj/structure/reagent_dispensers/fueltank/high/Initialize()
+/obj/structure/reagent_dispensers/fueltank/high/Initialize(mapload)
 	. = ..()
 	reagents.add_reagent("fuel",4000)
 
@@ -129,7 +128,7 @@
 	icon_state = "foamtank"
 	amount_per_transfer_from_this = 10
 
-/obj/structure/reagent_dispensers/foam/Initialize()
+/obj/structure/reagent_dispensers/foam/Initialize(mapload)
 	. = ..()
 	reagents.add_reagent("firefoam",1000)
 
@@ -143,7 +142,6 @@
 	if (W.is_wrench()) //can't wrench it shut, it's always open
 		return
 	return ..()
-//VOREStation Add End
 
 /obj/structure/reagent_dispensers/fueltank/examine(mob/user)
 	. = ..()
@@ -186,9 +184,10 @@
 				message_admins("[key_name_admin(user)] rigged fueltank at [loc.loc.name] ([loc.x],[loc.y],[loc.z]) for explosion. (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[loc.x];Y=[loc.y];Z=[loc.z]'>JMP</a>)")
 				log_game("[key_name(user)] rigged fueltank at [loc.loc.name] ([loc.x],[loc.y],[loc.z]) for explosion.")
 
+			if(!user.attempt_insert_item_for_installation(W, src))
+				return
+
 			rig = W
-			user.drop_item()
-			W.loc = src
 
 			var/icon/test = getFlatIcon(W)
 			test.Shift(NORTH,1)
@@ -240,18 +239,18 @@
 
 	amount = min(amount, reagents.total_volume)
 	reagents.remove_reagent("fuel",amount)
-	new /obj/effect/decal/cleanable/liquid_fuel(src.loc, amount,1)
+	new /obj/effect/debris/cleanable/liquid_fuel(src.loc, amount,1)
 
 /obj/structure/reagent_dispensers/peppertank
 	name = "Pepper Spray Refiller"
 	desc = "Refills pepper spray canisters."
 	icon = 'icons/obj/objects.dmi'
 	icon_state = "peppertank"
-	anchored = 1
-	density = 0
+	anchored = TRUE
+	density = FALSE
 	amount_per_transfer_from_this = 45
 
-/obj/structure/reagent_dispensers/peppertank/Initialize()
+/obj/structure/reagent_dispensers/peppertank/Initialize(mapload)
 	. = ..()
 	reagents.add_reagent("condensedcapsaicin",1000)
 
@@ -263,7 +262,7 @@
 	icon = 'icons/obj/vending.dmi'
 	icon_state = "water_cooler"
 	possible_transfer_amounts = null
-	anchored = 1
+	anchored = TRUE
 	var/bottle = 0
 	var/cups = 0
 	var/cupholder = 0
@@ -273,7 +272,7 @@
 	cupholder = 1
 	cups = 10
 
-/obj/structure/reagent_dispensers/water_cooler/Initialize()
+/obj/structure/reagent_dispensers/water_cooler/Initialize(mapload)
 	. = ..()
 	if(bottle)
 		reagents.add_reagent("water",120)
@@ -403,7 +402,7 @@
 	icon_state = "beertankTEMP"
 	amount_per_transfer_from_this = 10
 
-/obj/structure/reagent_dispensers/beerkeg/Initialize()
+/obj/structure/reagent_dispensers/beerkeg/Initialize(mapload)
 	. = ..()
 	reagents.add_reagent("beer",1000)
 
@@ -419,9 +418,10 @@
 	icon = 'icons/obj/objects.dmi'
 	icon_state = "virusfoodtank"
 	amount_per_transfer_from_this = 10
-	anchored = 1
+	anchored = TRUE
+	density = FALSE
 
-/obj/structure/reagent_dispensers/virusfood/Initialize()
+/obj/structure/reagent_dispensers/virusfood/Initialize(mapload)
 	. = ..()
 	reagents.add_reagent("virusfood", 1000)
 
@@ -431,9 +431,10 @@
 	icon = 'icons/obj/objects.dmi'
 	icon_state = "acidtank"
 	amount_per_transfer_from_this = 10
-	anchored = 1
+	anchored = TRUE
+	density = FALSE
 
-/obj/structure/reagent_dispensers/acid/Initialize()
+/obj/structure/reagent_dispensers/acid/Initialize(mapload)
 	. = ..()
 	reagents.add_reagent("sacid", 1000)
 
@@ -445,7 +446,7 @@
 	icon_state = "oiltank"
 	amount_per_transfer_from_this = 120
 
-/obj/structure/reagent_dispensers/tallow/Initialize()
+/obj/structure/reagent_dispensers/tallow/Initialize(mapload)
 	. = ..()
 	reagents.add_reagent("tallow", 5000)
 
@@ -458,7 +459,7 @@
 
 /obj/structure/reagent_dispensers/cookingoil/proc/explode()
 	reagents.splash_area(get_turf(src), 3)
-	visible_message(span("danger", "The [src] bursts open, spreading oil all over the area."))
+	visible_message(SPAN_DANGER("The [src] bursts open, spreading oil all over the area."))
 	qdel(src)
 
 /obj/structure/reagent_dispensers/he3
@@ -468,6 +469,19 @@
 	icon_state = "weldtank"
 	amount_per_transfer_from_this = 10
 
-/obj/structure/reagent_dispenser/he3/Initialize()
+/obj/structure/reagent_dispenser/he3/Initialize(mapload)
 	..()
 	reagents.add_reagent("helium3",1000)
+
+//Oil from Main. Seems like it could fit into Robotics as well as Surt stuff.
+/obj/structure/reagent_dispensers/oil
+	name = "Oil Dispenser"
+	desc = "A dispenser of crude oil for industrial processes."
+	icon = 'icons/obj/objects.dmi'
+	icon_state = "oiltank"
+	amount_per_transfer_from_this = 10
+	anchored = TRUE
+
+/obj/structure/reagent_dispensers/oil/Initialize(mapload)
+	. = ..()
+	reagents.add_reagent("oil", 1000)

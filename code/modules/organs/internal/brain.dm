@@ -7,10 +7,11 @@ GLOBAL_LIST_BOILERPLATE(all_brain_organs, /obj/item/organ/internal/brain)
 	organ_tag = "brain"
 	parent_organ = BP_HEAD
 	vital = 1
+	decay_rate = ORGAN_DECAY_PER_SECOND_BRAIN
 	icon_state = "brain2"
 	force = 1.0
 	w_class = ITEMSIZE_SMALL
-	throwforce = 1.0
+	throw_force = 1.0
 	throw_speed = 3
 	throw_range = 5
 	origin_tech = list(TECH_BIO = 3)
@@ -81,8 +82,10 @@ GLOBAL_LIST_BOILERPLATE(all_brain_organs, /obj/item/organ/internal/brain)
 		brainmob = new(src)
 		brainmob.name = H.real_name
 		brainmob.real_name = H.real_name
-		brainmob.dna = H.dna.Clone()
-		brainmob.timeofhostdeath = H.timeofdeath
+		if(istype(H))
+			brainmob.dna = H.dna.Clone()
+			brainmob.timeofhostdeath = H.timeofdeath
+			brainmob.ooc_notes = H.ooc_notes
 
 		// Copy modifiers.
 		for(var/datum/modifier/M in H.modifiers)
@@ -94,7 +97,7 @@ GLOBAL_LIST_BOILERPLATE(all_brain_organs, /obj/item/organ/internal/brain)
 
 	brainmob.languages = H.languages
 
-	to_chat(brainmob, "<span class='notice'>You feel slightly disoriented. That's normal when you're just \a [initial(src.name)].</span>")
+	to_chat(brainmob, SPAN_NOTICE("You feel slightly disoriented. That's normal when you're just \a [initial(src.name)]."))
 	callHook("debrain", list(brainmob))
 
 /obj/item/organ/internal/brain/examine(mob/user) // -- TLE
@@ -109,14 +112,15 @@ GLOBAL_LIST_BOILERPLATE(all_brain_organs, /obj/item/organ/internal/brain)
 	if(name == initial(name))
 		name = "\the [owner.real_name]'s [initial(name)]"
 
-	var/mob/living/simple_mob/animal/borer/borer = owner.has_brain_worms()
+	var/mob/living/simple_mob/animal/borer/borer = owner?.has_brain_worms()
 
 	if(borer)
-		borer.detatch() //Should remove borer if the brain is removed - RR
+		borer.detatch() //Should remove borer if the brain is removed
 
 	var/obj/item/organ/internal/brain/B = src
-	if(istype(B) && istype(owner))
-		B.transfer_identity(owner)
+	if(istype(B) && owner)
+		if(istype(owner, /mob/living/carbon))
+			B.transfer_identity(owner)
 
 	..()
 
@@ -133,9 +137,7 @@ GLOBAL_LIST_BOILERPLATE(all_brain_organs, /obj/item/organ/internal/brain)
 	..()
 
 /obj/item/organ/internal/brain/proc/get_control_efficiency()
-	. = max(0, 1 - (round(damage / max_damage * 10) / 10))
-
-	return .
+	return max(0, 1 - (round(damage / max_damage * 10) / 10))
 
 /obj/item/organ/internal/brain/pariah_brain
 	name = "brain remnants"
@@ -155,7 +157,7 @@ GLOBAL_LIST_BOILERPLATE(all_brain_organs, /obj/item/organ/internal/brain)
 	can_assist = FALSE
 
 /obj/item/organ/internal/brain/slime
-	icon = 'icons/obj/surgery_vr.dmi' // Vorestation edit
+	icon = 'icons/obj/surgery.dmi'
 	name = "slime core"
 	desc = "A complex, organic knot of jelly and crystalline particles."
 	icon_state = "core"
@@ -163,6 +165,7 @@ GLOBAL_LIST_BOILERPLATE(all_brain_organs, /obj/item/organ/internal/brain)
 	parent_organ = BP_TORSO
 	clone_source = TRUE
 	flags = OPENCONTAINER
+	var/list/owner_flavor_text = list()
 
 /obj/item/organ/internal/brain/slime/is_open_container()
 	return 1
@@ -177,6 +180,11 @@ GLOBAL_LIST_BOILERPLATE(all_brain_organs, /obj/item/organ/internal/brain)
 		var/mob/living/carbon/human/H = owner
 		color = rgb(min(H.r_skin + 40, 255), min(H.g_skin + 40, 255), min(H.b_skin + 40, 255))
 
+/obj/item/organ/internal/brain/slime/removed(var/mob/living/user)
+	if(istype(owner))
+		owner_flavor_text = owner.flavor_texts.Copy()
+	..()
+
 /obj/item/organ/internal/brain/slime/proc/reviveBody()
 	var/datum/dna2/record/R = new /datum/dna2/record()
 	R.dna = brainmob.dna
@@ -186,6 +194,8 @@ GLOBAL_LIST_BOILERPLATE(all_brain_organs, /obj/item/organ/internal/brain)
 	R.types = DNA2_BUF_UI|DNA2_BUF_UE|DNA2_BUF_SE
 	R.languages = brainmob.languages
 	R.flavor = list()
+	if(islist(owner_flavor_text))
+		R.flavor = owner_flavor_text.Copy()
 	for(var/datum/modifier/mod in brainmob.modifiers)
 		if(mod.flags & MODIFIER_GENETIC)
 			R.genetic_modifiers.Add(mod.type)
@@ -224,6 +234,7 @@ GLOBAL_LIST_BOILERPLATE(all_brain_organs, /obj/item/organ/internal/brain)
 	if(!R.dna.real_name)	//to prevent null names
 		R.dna.real_name = "promethean ([rand(0,999)])"
 	H.real_name = R.dna.real_name
+	H.ooc_notes = brainmob.ooc_notes
 
 	H.nutrition = 260 //Enough to try to regenerate ONCE.
 	H.adjustBruteLoss(40)
@@ -250,7 +261,7 @@ GLOBAL_LIST_BOILERPLATE(all_brain_organs, /obj/item/organ/internal/brain)
 	name = "Promethean Revival"
 	id = "prom_revival"
 	result = null
-	required_reagents = list("phoron" = 40)
+	required_reagents = list(MAT_PHORON = 40)
 	result_amount = 1
 
 /datum/chemical_reaction/promethean_brain_revival/can_happen(var/datum/reagents/holder)
@@ -261,9 +272,9 @@ GLOBAL_LIST_BOILERPLATE(all_brain_organs, /obj/item/organ/internal/brain)
 /datum/chemical_reaction/promethean_brain_revival/on_reaction(var/datum/reagents/holder)
 	var/obj/item/organ/internal/brain/slime/brain = holder.my_atom
 	if(brain.reviveBody())
-		brain.visible_message("<span class='notice'>[brain] bubbles, surrounding itself with a rapidly expanding mass of slime!</span>")
+		brain.visible_message(SPAN_NOTICE("[brain] bubbles, surrounding itself with a rapidly expanding mass of slime!"))
 	else
-		brain.visible_message("<span class='warning'>[brain] shifts strangely, but falls still.</span>")
+		brain.visible_message(SPAN_NOTICE("[brain] shifts strangely, but falls still."))
 
 /obj/item/organ/internal/brain/golem
 	name = "chem"

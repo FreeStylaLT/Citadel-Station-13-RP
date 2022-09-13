@@ -8,17 +8,25 @@
 	drop_sound = 'sound/items/drop/metalshield.ogg'
 	pickup_sound = 'sound/items/pickup/axe.ogg'
 
-/obj/item/clothing/gloves/arm_guard/mob_can_equip(var/mob/living/carbon/human/H, slot)
-	if(..()) //This will only run if no other problems occured when equiping.
-		if(H.wear_suit)
-			if(H.wear_suit.body_parts_covered & ARMS)
-				to_chat(H, "<span class='warning'>You can't wear \the [src] with \the [H.wear_suit], it's in the way.</span>")
-				return 0
-			for(var/obj/item/clothing/accessory/A in H.wear_suit)
-				if(A.body_parts_covered & ARMS)
-					to_chat(H, "<span class='warning'>You can't wear \the [src] with \the [H.wear_suit]'s [A], it's in the way.</span>")
-					return 0
-		return 1
+/obj/item/clothing/gloves/arm_guard/can_equip(mob/M, slot, mob/user, flags)
+	. = ..()
+	if(!.)
+		return
+
+	if(!ishuman(M))
+		return
+
+	var/mob/living/carbon/human/H = M
+
+	if(H.wear_suit)
+		if(H.wear_suit.body_parts_covered & ARMS)
+			to_chat(H, "<span class='warning'>You can't wear \the [src] with \the [H.wear_suit], it's in the way.</span>")
+			return FALSE
+		for(var/obj/item/clothing/accessory/A in H.wear_suit)
+			if(A.body_parts_covered & ARMS)
+				to_chat(H, "<span class='warning'>You can't wear \the [src] with \the [H.wear_suit]'s [A], it's in the way.</span>")
+				return FALSE
+	return TRUE
 
 /obj/item/clothing/gloves/arm_guard/laserproof
 	name = "ablative arm guards"
@@ -61,3 +69,8 @@
 	armor = list(melee = 40, bullet = 40, laser = 60, energy = 35, bomb = 30, bio = 0, rad = 0)
 	min_cold_protection_temperature = T0C - 20
 	cold_protection = ARMS
+
+/obj/item/clothing/gloves/arm_guard/combat/imperial
+	name = "imperial gauntlets"
+	desc = "Made of some exotic metal, and crafted by space elves. Elves have delicate hands."
+	icon_state = "ge_gloves"

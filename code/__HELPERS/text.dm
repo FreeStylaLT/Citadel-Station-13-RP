@@ -8,15 +8,15 @@
  *			Misc
  */
 
-
 /*
  * SQL sanitization
  */
 
-// Run all strings to be used in an SQL query through this proc first to properly escape out injection attempts.
-/proc/sanitizeSQL(var/t as text)
-	var/sqltext = dbcon.Quote(t);
-	return copytext(sqltext, 2, length(sqltext));//Quote() adds quotes around input, we already do that
+/proc/format_table_name(table)
+	return CONFIG_GET(string/sql_server_prefix) + table
+
+/proc/format_unified_table_name(table)
+	return CONFIG_GET(string/sql_unified_prefix) + table
 
 /*
  * Text sanitization
@@ -31,7 +31,9 @@
 		input = copytext(input,1,max_length)
 
 	if(extra)
-		input = replace_characters(input, list("\n"=" ","\t"=" "))
+		var/temp_input = replace_characters(input, list("\n"="  ","\t"=" "))//one character is replaced by two
+		if(length_char(input) < (length_char(temp_input) - 12)) //12 is the number of linebreaks allowed per message
+			input = replace_characters(temp_input,list("  "=" "))//replace again, this time the double spaces with single ones
 
 	if(encode)
 		// The below \ escapes have a space inserted to attempt to enable Travis auto-checking of span class usage. Please do not remove the space.
@@ -358,6 +360,14 @@
 		new_text += copytext(text, i, i+1)
 	return new_text
 
+/proc/text2charlist(text)
+	var/char = ""
+	var/lentext = length(text)
+	. = list()
+	for(var/i = 1, i <= lentext, i += length(char))
+		char = text[i]
+		. += char
+
 //Used in preferences' SetFlavorText and human's set_flavor verb
 //Previews a string of len or less length
 proc/TextPreview(var/string,var/len=40)
@@ -534,7 +544,7 @@ GLOBAL_LIST_INIT(binary, list("0","1"))
 /proc/random_color()
 	return random_string(6, GLOB.hex_characters)
 
-//VR FILE MERGE
+//! ## VR FILE MERGE ## !//
 //Readds quotes and apostrophes to HTML-encoded strings
 /proc/readd_quotes(var/t)
 	var/list/repl_chars = list("&#34;" = "\"","&#39;" = "'")
@@ -545,3 +555,21 @@ GLOBAL_LIST_INIT(binary, list("0","1"))
 			index = findtext(t, char)
 	return t
 
+//Adds 'char' ahead of 'text' until there are 'count' characters total
+/proc/add_leading(text, count, char = " ")
+	text = "[text]"
+	var/charcount = count - length_char(text)
+	var/list/chars_to_add[max(charcount + 1, 0)]
+	return jointext(chars_to_add, char) + text
+
+//Adds 'char' behind 'text' until there are 'count' characters total
+/proc/add_trailing(text, count, char = " ")
+	text = "[text]"
+	var/charcount = count - length_char(text)
+	var/list/chars_to_add[max(charcount + 1, 0)]
+	return text + jointext(chars_to_add, char)
+
+/// Removes all non-alphanumerics from the text, keep in mind this can lead to id conflicts
+/proc/sanitize_css_class_name(name)
+	var/static/regex/regex = new(@"[^a-zA-Z0-9]","g")
+	return replacetext(name, regex, "")

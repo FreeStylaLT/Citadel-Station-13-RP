@@ -39,14 +39,14 @@
 /obj/item/key/rover
 	name = "The Rover key"
 	desc = "The Rover key used to start it."
-	icon = 'icons/obj/vehicles_vr.dmi'
+	icon = 'icons/obj/vehicles.dmi'
 	icon_state = "securikey"
 	w_class = ITEMSIZE_TINY
 
 /obj/vehicle/train/rover/trolley
 	name = "Train trolley"
 	desc = "A trolley designed to transport security equipment to a scene."
-	icon = 'icons/obj/vehicles_vr.dmi'
+	icon = 'icons/obj/vehicles.dmi'
 	icon_state = "secitemcarrierbot"
 	anchored = 0
 	passenger_allowed = 0
@@ -92,8 +92,8 @@
 /obj/vehicle/train/rover/engine/attackby(obj/item/W as obj, mob/user as mob)
 	if(istype(W, /obj/item/key/rover))
 		if(!key)
-			user.drop_item()
-			W.forceMove(src)
+			if(!user.attempt_insert_item_for_installation(W, src))
+				return
 			key = W
 			verbs += /obj/vehicle/train/rover/engine/verb/remove_key
 		return
@@ -166,28 +166,28 @@
 	else
 		verbs += /obj/vehicle/train/rover/engine/verb/stop_engine
 
-/obj/vehicle/train/rover/RunOver(var/mob/living/carbon/human/H)
+/obj/vehicle/train/rover/RunOver(var/mob/living/M)
 	var/list/parts = list(BP_HEAD, BP_TORSO, BP_L_LEG, BP_R_LEG, BP_L_ARM, BP_R_ARM)
 
-	H.apply_effects(5, 5)
+	M.apply_effects(5, 5)
 	for(var/i = 0, i < rand(1,3), i++)
-		H.apply_damage(rand(1,5), BRUTE, pick(parts))
+		M.apply_damage(rand(1,5), BRUTE, pick(parts))
 
-/obj/vehicle/train/rover/trolley/RunOver(var/mob/living/carbon/human/H)
+/obj/vehicle/train/rover/trolley/RunOver(var/mob/living/M)
 	..()
-	attack_log += text("\[[time_stamp()]\] <font color='red'>ran over [H.name] ([H.ckey])</font>")
+	attack_log += text("\[[time_stamp()]\] <font color='red'>ran over [M.name] ([M.ckey])</font>")
 
-/obj/vehicle/train/rover/engine/RunOver(var/mob/living/carbon/human/H)
+/obj/vehicle/train/rover/engine/RunOver(var/mob/living/M)
 	..()
 
 	if(is_train_head() && istype(load, /mob/living/carbon/human))
 		var/mob/living/carbon/human/D = load
-		to_chat(D, "<span class='danger'>You ran over \the [H]!</span>")
-		visible_message("<span class='danger'>\The [src] ran over \the [H]!</span>")
-		add_attack_logs(D,H,"Ran over with [src.name]")
-		attack_log += text("\[[time_stamp()]\] <font color='red'>ran over [H.name] ([H.ckey]), driven by [D.name] ([D.ckey])</font>")
+		to_chat(D, "<span class='danger'>You ran over \the [M]!</span>")
+		visible_message("<span class='danger'>\The [src] ran over \the [M]!</span>")
+		add_attack_logs(D,M,"Ran over with [src.name]")
+		attack_log += text("\[[time_stamp()]\] <font color='red'>ran over [M.name] ([M.ckey]), driven by [D.name] ([D.ckey])</font>")
 	else
-		attack_log += text("\[[time_stamp()]\] <font color='red'>ran over [H.name] ([H.ckey])</font>")
+		attack_log += text("\[[time_stamp()]\] <font color='red'>ran over [M.name] ([M.ckey])</font>")
 
 
 //-------------------------------------------
@@ -198,7 +198,7 @@
 		return 0
 
 	if(is_train_head())
-		if(direction == reverse_direction(dir) && tow)
+		if(direction == REVERSE_DIR(dir) && tow)
 			return 0
 		if(Move(get_step(src, direction)))
 			return 1
@@ -263,7 +263,7 @@
 		turn_off()
 
 	key.loc = usr.loc
-	if(!usr.get_active_hand())
+	if(!usr.get_active_held_item())
 		usr.put_in_hands(key)
 	key = null
 
@@ -365,7 +365,7 @@
 
 		if(dir == T_dir) 	//if car is ahead
 			src.attach_to(T, user)
-		else if(reverse_direction(dir) == T_dir)	//else if car is behind
+		else if(REVERSE_DIR(dir) == T_dir)	//else if car is behind
 			T.attach_to(src, user)
 
 //-------------------------------------------------------

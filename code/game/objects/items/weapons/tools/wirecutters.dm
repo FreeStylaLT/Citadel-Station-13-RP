@@ -6,13 +6,15 @@
 	desc = "This cuts wires."
 	icon = 'icons/obj/tools.dmi'
 	icon_state = "cutters"
+	item_state = "cutters"
 	slot_flags = SLOT_BELT
+	tool_behaviour = TOOL_WIRECUTTER
 	force = 6
 	throw_speed = 2
 	throw_range = 9
 	w_class = ITEMSIZE_SMALL
 	origin_tech = list(TECH_MATERIAL = 1, TECH_ENGINEERING = 1)
-	matter = list(DEFAULT_WALL_MATERIAL = 80)
+	matter = list(MAT_STEEL = 80)
 	attack_verb = list("pinched", "nipped")
 	hitsound = 'sound/items/wirecutter.ogg'
 	usesound = 'sound/items/wirecutter.ogg'
@@ -25,9 +27,20 @@
 
 /obj/item/tool/wirecutters/Initialize(mapload)
 	. = ..()
-	if(random_color && prob(50))
-		icon_state = "cutters-y"
-		item_state = "cutters_yellow"
+	if(random_color)
+		switch(pick("red","yellow","green","blue"))
+			if ("red")
+				icon_state = "cutters"
+				item_state = "cutters"
+			if ("yellow")
+				icon_state = "cutters_yellow"
+				item_state = "cutters_yellow"
+			if ("green")
+				icon_state = "cutters_green"
+				item_state = "cutters_green"
+			if ("blue")
+				icon_state = "cutters_blue"
+				item_state = "cutters_blue"
 
 /obj/item/tool/wirecutters/attack(mob/living/carbon/C as mob, mob/user as mob)
 	if(istype(C) && user.a_intent == INTENT_HELP && (C.handcuffed) && (istype(C.handcuffed, /obj/item/handcuffs/cable)))
@@ -37,7 +50,7 @@
 		C.handcuffed = null
 		if(C.buckled && C.buckled.buckle_require_restraints)
 			C.buckled.unbuckle_mob()
-		C.update_inv_handcuffed()
+		C.update_handcuffed()
 		return
 	else
 		..()
@@ -45,6 +58,19 @@
 /obj/item/tool/wirecutters/is_wirecutter()
 	return TRUE
 
+/obj/item/tool/wirecutters/bone
+	name = "primitive wirecutters"
+	desc = "Dull wirecutters knapped from bone."
+	icon_state = "cutters_bone"
+	toolspeed = 1.25
+	random_color = FALSE
+
+/obj/item/tool/wirecutters/brass
+	name = "brass wirecutters"
+	desc = "Brass plated wirecutters that never seem to lose their edge."
+	icon_state = "cutters_brass"
+	toolspeed = 0.75
+	random_color = FALSE
 
 /datum/category_item/catalogue/anomalous/precursor_a/alien_wirecutters
 	name = "Precursor Alpha Object - Wire Seperator"
@@ -74,6 +100,12 @@
 	desc = "This cuts wires.  With science."
 	usesound = 'sound/items/jaws_cut.ogg'
 	toolspeed = 0.5
+
+/obj/item/tool/wirecutters/RIGset
+	name = "integrated wirecutters"
+	desc = "If you're seeing this, someone did a dum-dum."
+	usesound = 'sound/items/jaws_cut.ogg'
+	toolspeed = 0.7
 
 /obj/item/tool/wirecutters/hybrid
 	name = "strange wirecutters"
@@ -116,8 +148,8 @@
 
 /obj/item/tool/wirecutters/power/attack_self(mob/user)
 	playsound(get_turf(user), 'sound/items/change_jaws.ogg', 50, 1)
-	user.drop_item(src)
-	counterpart.forceMove(get_turf(src))
-	src.forceMove(counterpart)
-	user.put_in_active_hand(counterpart)
+	user.temporarily_remove_from_inventory(src, INV_OP_FORCE | INV_OP_SHOULD_NOT_INTERCEPT | INV_OP_SILENT)
+	if(!user.put_in_active_hand(counterpart))
+		counterpart.forceMove(get_turf(user))
+	forceMove(counterpart)
 	to_chat(user, "<span class='notice'>You attach the pry jaws to [src].</span>")

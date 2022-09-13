@@ -13,7 +13,7 @@
 
 	var/const/climb_time = 2 SECONDS
 
-/obj/structure/ladder/Initialize()
+/obj/structure/ladder/Initialize(mapload)
 	. = ..()
 	// the upper will connect to the lower
 	if(allowed_directions & DOWN) //we only want to do the top one, as it will initialize the ones before it.
@@ -51,13 +51,13 @@
 	climbLadder(M, target_ladder)
 
 /obj/structure/ladder/attack_ghost(var/mob/M)
+	. = ..()
 	var/target_ladder = getTargetLadder(M)
 	if(target_ladder)
 		M.forceMove(get_turf(target_ladder))
 
 /obj/structure/ladder/attack_robot(var/mob/M)
 	attack_hand(M)
-	return
 
 /obj/structure/ladder/proc/getTargetLadder(var/mob/M)
 	if((!target_up && !target_down) || (target_up && !istype(target_up.loc, /turf) || (target_down && !istype(target_down.loc,/turf))))
@@ -106,7 +106,7 @@
 			if(!A.CanPass(M, M.loc, 1.5, 0))
 				to_chat(M, "<span class='notice'>\The [A] is blocking \the [src].</span>")
 				return FALSE
-		return M.forceMove(T) //VOREStation Edit - Fixes adminspawned ladders
+		return M.forceMove(T)
 
 /obj/structure/ladder/CanPass(obj/mover, turf/source, height, airflow)
 	. = ..()

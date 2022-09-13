@@ -5,19 +5,12 @@
 	var/climbable
 	var/climb_delay = 3.5 SECONDS
 	var/breakable
-	var/parts
 	var/list/climbers = list()
-	var/block_turf_edges = FALSE // If true, turf edge icons will not be made on the turf this occupies.
 
 	var/list/connections
 	var/list/other_connections
 	var/list/blend_objects = newlist() // Objects which to blend with
 	var/list/noblend_objects = newlist() //Objects to avoid blending with (such as children of listed blend objects.
-
-/obj/structure/Destroy()
-	if(parts)
-		new parts(loc)
-	. = ..()
 
 /obj/structure/attack_hand(mob/user)
 	if(breakable)
@@ -65,7 +58,7 @@
 
 	do_climb(usr)
 
-/obj/structure/MouseDrop_T(mob/target, mob/user)
+/obj/structure/MouseDroppedOnLegacy(mob/target, mob/user)
 
 	var/mob/living/H = user
 	if(istype(H) && can_climb(H) && target == user)
@@ -223,7 +216,7 @@
 				if(propagate)
 					var/turf/simulated/wall/W = T
 					if(istype(W))
-						W.update_connections(1)
+						QUEUE_SMOOTH(W)
 				if(success)
 					break // breaks inner loop
 		if(!success)

@@ -8,6 +8,12 @@
 	force_divisor = 0.3 // 18 with hardness 60 (steel)
 	attack_verb = list("jabbed","stabbed","ripped")
 
+/obj/item/material/harpoon/plasteel
+	default_material = "plasteel"
+
+/obj/item/material/harpoon/durasteel
+	default_material = "durasteel"
+
 /obj/item/material/knife/machete/hatchet
 	name = "hatchet"
 	desc = "A very sharp axe blade upon a short fibremetal handle. It has a long history of chopping things, but now it is used for chopping wood."
@@ -24,6 +30,11 @@
 	drop_sound = 'sound/items/drop/axe.ogg'
 	pickup_sound = 'sound/items/pickup/axe.ogg'
 
+/obj/item/material/knife/machete/hatchet/bone
+	name = "primitive hatchet"
+	desc = "A broad, flat piece of bone knapped to a sharp edge. A truly primitive weapon."
+	icon_state = "hatchet_bone"
+
 /obj/item/material/knife/machete/hatchet/unathiknife
 	name = "duelling knife"
 	desc = "A length of leather-bound wood studded with razor-sharp teeth. How crude."
@@ -33,10 +44,16 @@
 	can_cleave = FALSE
 	var/hits = 0
 
+/obj/item/material/knife/machete/hatchet/durasteel
+	default_material = "durasteel"
+
+/obj/item/material/knife/machete/hatchet/unathiknife/durasteel
+	default_material = "durasteel"
+
 /obj/item/material/knife/machete/hatchet/unathiknife/attack(mob/M as mob, mob/user as mob)
 	if(hits > 0)
 		return
-	var/obj/item/I = user.get_inactive_hand()
+	var/obj/item/I = user.get_inactive_held_item()
 	if(istype(I, /obj/item/material/knife/machete/hatchet/unathiknife))
 		hits ++
 		var/obj/item/W = I
@@ -58,6 +75,18 @@
 	dulled_divisor = 0.75	//Still metal on a long pole
 	w_class = ITEMSIZE_SMALL
 	attack_verb = list("slashed", "sliced", "cut", "clawed")
+
+/obj/item/material/minihoe/plasteel
+	default_material = "plasteel"
+
+/obj/item/material/minihoe/durasteel
+	default_material = "durasteel"
+
+/obj/item/material/minihoe/bone
+	name = "primitive mini hoe"
+	icon = 'icons/obj/mining.dmi'
+	icon_state = "cultivator_bone"
+	default_material = "bone"
 
 /obj/item/material/snow/snowball
 	name = "loose packed snowball"
@@ -126,4 +155,3 @@
 		force_divisor = initial(force_divisor)
 		icon_state = initial(icon_state)
 		item_state = initial(item_state)
-

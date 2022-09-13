@@ -74,7 +74,7 @@
 		spawned_mobs.Remove(L)
 
 /obj/structure/mob_spawner/attackby(var/obj/item/I, var/mob/living/user)
-	if(!I.force || I.flags & NOBLUDGEON || !destructible)
+	if(!I.force || I.item_flags & NOBLUDGEON || !destructible)
 		return
 
 	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
@@ -175,7 +175,7 @@ It also makes it so a ghost wont know where all the goodies/mobs are.
 	destructible = 1
 	health = 50
 	anchored = 1
-	icon = 'icons/mob/actions.dmi'
+	icon = 'icons/screen/actions/actions.dmi'
 	icon_state = "alien_egg"
 	spawn_types = list(
 	/mob/living/simple_mob/animal/space/alien/drone = 20,
@@ -194,7 +194,7 @@ It also makes it so a ghost wont know where all the goodies/mobs are.
 	destructible = 1
 	health = 50
 	anchored = 1
-	icon = 'icons/mob/actions.dmi'
+	icon = 'icons/screen/actions/actions.dmi'
 	icon_state = "alien_egg"
 	spawn_types = list(
 	/mob/living/simple_mob/animal/space/alien/queen = 5
@@ -425,7 +425,7 @@ It also makes it so a ghost wont know where all the goodies/mobs are.
 	destructible = 1
 	health = 50
 	anchored = 1
-	icon = 'icons/mob/actions.dmi'
+	icon = 'icons/screen/actions/actions.dmi'
 	icon_state = "alien_egg"
 	spawn_types = list(
 	/mob/living/simple_mob/animal/space/alien/drone = 20,
@@ -444,7 +444,7 @@ It also makes it so a ghost wont know where all the goodies/mobs are.
 	destructible = 1
 	health = 50
 	anchored = 1
-	icon = 'icons/mob/actions.dmi'
+	icon = 'icons/screen/actions/actions.dmi'
 	icon_state = "alien_egg"
 	spawn_types = list(
 	/mob/living/simple_mob/animal/space/alien/queen = 5,

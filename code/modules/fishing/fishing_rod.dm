@@ -12,8 +12,8 @@
 	icon = 'icons/obj/weapons.dmi'
 	icon_state = "fishing_rod"
 	item_state = "fishing_rod"
-	force_divisor = 0.02	//VOREStation Edit
-	throwforce = 1		//VOREStation Edit
+	force_divisor = 0.02
+	throw_force = 1
 	sharp = TRUE
 	attack_verb = list("whipped", "battered", "slapped", "fished", "hooked")
 	hitsound = 'sound/weapons/punchmiss.ogg'
@@ -69,12 +69,12 @@
 			update_icon()
 			return
 	else if(istype(I, bait_type))
+		if(!user.attempt_insert_item_for_installation(I, src))
+			return
 		if(Bait)
-			Bait.forceMove(get_turf(user))
+			user.grab_item_from_interacted_with(Bait, src)
 			to_chat(user, "<span class='notice'>You swap \the [Bait] with \the [I].</span>")
 		Bait = I
-		user.drop_from_inventory(Bait)
-		Bait.forceMove(src)
 		update_bait()
 	return ..()
 

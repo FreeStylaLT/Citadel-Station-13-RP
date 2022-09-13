@@ -29,23 +29,36 @@
 	else
 		return
 
-/obj/structure/plasticflaps/CanAllowThrough(atom/A, turf/T)
-	if(istype(A) && A.checkpass(PASSGLASS))
-		return prob(60)
+/obj/structure/plasticflaps/CanAStarPass(obj/item/card/id/ID, to_dir, atom/movable/caller)
+	if(isliving(caller))
+		if(isbot(caller))
+			return TRUE
 
-	var/obj/structure/bed/B = A
-	if (istype(A, /obj/structure/bed) && B.has_buckled_mobs())//if it's a bed/chair and someone is buckled, it will not pass
+		var/mob/living/living_caller = caller
+		if(!living_caller.can_ventcrawl() && living_caller.mob_size > MOB_TINY)
+			return FALSE
+
+	if(caller?.pulling)
+		return CanAStarPass(ID, to_dir, caller.pulling)
+	return TRUE //diseases, stings, etc can pass
+
+/obj/structure/plasticflaps/CanAllowThrough(atom/movable/mover, turf/target)
+	if(mover.check_pass_flags(ATOM_PASS_GLASS) && prob(60))
+		return TRUE
+
+	var/obj/structure/bed/B = mover
+	if (istype(mover, /obj/structure/bed) && B.has_buckled_mobs())//if it's a bed/chair and someone is buckled, it will not pass
 		return 0
 
-	if(istype(A, /obj/vehicle) || istype (A, /obj/mecha)) //no vehicles
-		return 0
+	if(isvehicle(mover))
+		return FALSE
 
-	var/mob/living/M = A
+	var/mob/living/M = mover
 	if(istype(M))
 		if(M.lying && can_pass_lying)
 			return ..()
 		for(var/mob_type in mobs_can_pass)
-			if(istype(A, mob_type))
+			if(istype(mover, mob_type))
 				return ..()
 		return issmall(M)
 
@@ -65,4 +78,4 @@
 /obj/structure/plasticflaps/mining //A specific type for mining that doesn't allow airflow because of them damn crates
 	name = "airtight plastic flaps"
 	desc = "Heavy duty, airtight, plastic flaps. Have extra safety installed, preventing passage of living beings."
-	can_atmos_pass = ATMOS_PASS_NO
+	CanAtmosPass = ATMOS_PASS_AIR_BLOCKED

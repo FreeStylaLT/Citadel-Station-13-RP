@@ -15,7 +15,8 @@
 	var/headphones_on = 0
 	icon_state = "headphones_off"
 	item_state_slots = list(slot_r_hand_str = "headphones", slot_l_hand_str = "headphones")
-	slot_flags = SLOT_EARS | SLOT_TWOEARS
+	slot_flags = SLOT_EARS
+	ear_protection = 0
 
 /obj/item/clothing/ears/earmuffs/headphones/verb/togglemusic()
 	set name = "Toggle Headphone Music"
@@ -35,7 +36,7 @@
 		headphones_on = 1
 		to_chat(usr, "<span class='notice'>You turn the music on.</span>")
 
-	update_clothing_icon()
+	update_worn_icon()
 
 /obj/item/clothing/ears/earmuffs/headphones/AltClick(mob/user)
 	if(!Adjacent(user))
@@ -53,7 +54,6 @@
 	icon = 'icons/obj/clothing/ears.dmi'
 	w_class = ITEMSIZE_TINY
 	slot_flags = SLOT_EARS
-	species_restricted = list(SPECIES_SKRELL)
 
 /obj/item/clothing/ears/skrell/chain
 	name = "Gold headtail chains"
@@ -192,12 +192,3 @@
 	name = "light blue headtail cloth"
 	icon_state = "skrell_cloth_lblue_male"
 	item_state_slots = list(slot_r_hand_str = "egg2", slot_l_hand_str = "egg2")
-
-//donator item
-/obj/item/clothing/ears/earmuffs/headphones/aura
-	name = "KNIGHT-brand Melodic headset"
-	desc = "Unce unce unce unce."
-	headphones_on = 0
-	icon_state = "auraphones_off"
-	item_state_slots = list(slot_r_hand_str = "headphones", slot_l_hand_str = "headphones")
-	slot_flags = SLOT_EARS

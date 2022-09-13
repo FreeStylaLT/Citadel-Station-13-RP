@@ -32,7 +32,8 @@
 	say_list_type = /datum/say_list/cow
 
 	meat_amount = 6
-	meat_type = /obj/item/reagent_containers/food/snacks/meat
+	bone_amount = 4
+	hide_amount = 6
 
 	var/datum/reagents/udder = null
 
@@ -53,9 +54,11 @@
 	else
 		..()
 
-/mob/living/simple_mob/animal/passive/cow/Life()
-	. = ..()
-	if(stat == CONSCIOUS)
+/mob/living/simple_mob/animal/passive/cow/BiologicalLife(seconds, times_fired)
+	if((. = ..()))
+		return
+
+	if(stat != DEAD)
 		if(udder && prob(5))
 			udder.add_reagent("milk", rand(5, 10))
 

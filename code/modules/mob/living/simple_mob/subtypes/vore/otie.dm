@@ -47,6 +47,10 @@
 	var/tamed = 0
 	var/tame_chance = 50 //It's a fiddy-fiddy default you may get a buddy pal or you may get mauled and ate. Win-win!
 
+	meat_amount = 6
+	bone_amount = 2
+	hide_amount = 2
+
 // Activate Noms!
 
 /mob/living/simple_mob/otie
@@ -269,7 +273,7 @@
 		riding_datum = new /datum/riding/simple_mob(src)
 	verbs |= /mob/living/simple_mob/proc/animal_mount
 
-/mob/living/simple_mob/otie/MouseDrop_T(mob/living/M, mob/living/user)
+/mob/living/simple_mob/otie/MouseDroppedOnLegacy(mob/living/M, mob/living/user)
 	return
 
 /datum/say_list/otie

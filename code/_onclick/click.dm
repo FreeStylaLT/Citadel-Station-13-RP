@@ -18,17 +18,22 @@
 
 /atom/Click(var/location, var/control, var/params) // This is their reaction to being clicked on (standard proc)
 	if(!(flags & INITIALIZED))
-		to_chat(usr, "<span class='warning'>[type] initialization failure. Click dropped. Contact a coder or admin.</span>")
+		to_chat(usr, SPAN_WARNING("[type] initialization failure. Click dropped. Contact a coder or admin."))
 		return
 	if(src)
+		SEND_SIGNAL(src, COMSIG_CLICK, location, control, params, usr)
 		usr.ClickOn(src, params)
 
 /atom/DblClick(var/location, var/control, var/params)
 	if(!(flags & INITIALIZED))
-		to_chat(usr, "<span class='warning'>[type] initialization failure. Click dropped. Contact a coder or admin.</span>")
+		to_chat(usr, SPAN_WARNING("[type] initialization failure. Click dropped. Contact a coder or admin."))
 		return
 	if(src)
 		usr.DblClickOn(src, params)
+
+/atom/MouseWheel(delta_x,delta_y,location,control,params)
+	usr.MouseWheelOn(src, delta_x, delta_y, params)
+
 
 /*
 	Standard mob ClickOn()
@@ -92,14 +97,15 @@
 		RestrainedClickOn(A)
 		return 1
 
-	if(in_throw_mode)
+	if(throw_mode_check())
 		if(isturf(A) || isturf(A.loc))
-			throw_item(A)
-			trigger_aiming(TARGET_CAN_CLICK)
+			throw_active_held_item(A)
+			// todo: pass in overhand arg so we aren't stuck using throw mode off AFTER the call
+			throw_mode_off()
 			return 1
 		throw_mode_off()
 
-	var/obj/item/W = get_active_hand()
+	var/obj/item/W = get_active_held_item()
 
 	if(W == A) // Handle attack_self
 		W.attack_self(src)
@@ -123,7 +129,7 @@
 		trigger_aiming(TARGET_CAN_CLICK)
 		return 1
 
-	// VOREStation Addition Start: inbelly item interaction
+	// Inbelly item interaction
 	if(isbelly(loc) && (loc == A.loc))
 		if(W)
 			var/resolved = W.resolve_attackby(A, src, params)
@@ -134,7 +140,6 @@
 				setClickCooldown(get_attack_speed())
 			UnarmedAttack(A, 1)
 		return
-	// VOREStation Addition End
 
 	if(!isturf(loc)) // This is going to stop you from telekinesing from inside a closet, but I don't shed many tears for that
 		return
@@ -190,12 +195,7 @@
 	return
 
 /mob/living/UnarmedAttack(var/atom/A, var/proximity_flag)
-
 	if(is_incorporeal())
-		return 0
-
-	if(!SSticker)
-		to_chat(src, "You cannot attack people before the game has started.")
 		return 0
 
 	if(stat)
@@ -365,22 +365,22 @@
 	if(direction != dir)
 		setDir(direction)
 
-/obj/screen/click_catcher
+/atom/movable/screen/click_catcher
 	icon = 'icons/mob/screen_gen.dmi'
 	icon_state = "click_catcher"
 	plane = CLICKCATCHER_PLANE
 	mouse_opacity = 2
 	screen_loc = "CENTER-7,CENTER-7"
 
-/obj/screen/click_catcher/proc/MakeGreed()
+/atom/movable/screen/click_catcher/proc/MakeGreed()
 	. = list()
 	for(var/i = 0, i<15, i++)
 		for(var/j = 0, j<15, j++)
-			var/obj/screen/click_catcher/CC = new()
+			var/atom/movable/screen/click_catcher/CC = new()
 			CC.screen_loc = "NORTH-[i],EAST-[j]"
 			. += CC
 
-/obj/screen/click_catcher/Click(location, control, params)
+/atom/movable/screen/click_catcher/Click(location, control, params)
 	var/list/modifiers = params2list(params)
 	if(modifiers["middle"] && istype(usr, /mob/living/carbon))
 		var/mob/living/carbon/C = usr
@@ -390,3 +390,7 @@
 		if(T)
 			T.Click(location, control, params)
 	. = 1
+
+/// MouseWheelOn
+/mob/proc/MouseWheelOn(atom/A, delta_x, delta_y, params)
+	SEND_SIGNAL(src, COMSIG_MOUSE_SCROLL_ON, A, delta_x, delta_y, params)

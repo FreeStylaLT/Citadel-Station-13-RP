@@ -16,25 +16,18 @@
 	var/mob/living/carbon/human/wearer = null 	// To check if the wearer changes, so species spritesheets change properly.
 	var/list/on_rolled = list()					// Used when jumpsuit sleevels are rolled ("rolled" entry) or it's rolled down ("down"). Set to "none" to hide in those states.
 	sprite_sheets = list(
-		SPECIES_TESHARI = 'icons/mob/species/teshari/ties.dmi', //Teshari can into webbing, too!
-		SPECIES_VOX = 'icons/mob/species/vox/ties.dmi')
+		SPECIES_TESHARI = 'icons/mob/clothing/species/teshari/ties.dmi', //Teshari can into webbing, too!
+		SPECIES_VOX = 'icons/mob/clothing/species/vox/ties.dmi')
 	drop_sound = 'sound/items/drop/accessory.ogg'
 	pickup_sound = 'sound/items/pickup/accessory.ogg'
 
 /obj/item/clothing/accessory/Destroy()
+	has_suit?.accessories -= src
 	on_removed()
 	return ..()
 
-/obj/item/clothing/accessory/MouseDrop(mob/user as mob)
-	if(ismob(src.loc))
-		if(!CanMouseDrop(src))
-			return
-		var/mob/M = src.loc
-		if(!M.unEquip(src))
-			return
-		src.add_fingerprint(usr)
-		M.put_in_active_hand(src)
-
+/obj/item/clothing/accessory/worn_mob()
+	return has_suit? has_suit.worn_mob() : ..()
 
 /obj/item/clothing/accessory/proc/get_inv_overlay()
 	if(!inv_overlay)
@@ -70,8 +63,8 @@
 		if("[tmp_icon_state]_mob" in icon_states(icon_override))
 			tmp_icon_state = "[tmp_icon_state]_mob"
 		mob_overlay = image("icon" = icon_override, "icon_state" = "[tmp_icon_state]")
-	else if(wearer && sprite_sheets[wearer.species.get_bodytype(wearer)]) //Teshari can finally into webbing, too!
-		mob_overlay = image("icon" = sprite_sheets[wearer.species.get_bodytype(wearer)], "icon_state" = "[tmp_icon_state]")
+	else if(wearer && sprite_sheets[wearer.species.get_worn_legacy_bodytype(wearer)]) //Teshari can finally into webbing, too!
+		mob_overlay = image("icon" = sprite_sheets[wearer.species.get_worn_legacy_bodytype(wearer)], "icon_state" = "[tmp_icon_state]")
 	else
 		mob_overlay = image("icon" = INV_ACCESSORIES_DEF_ICON, "icon_state" = "[tmp_icon_state]")
 	if(addblends)
@@ -92,20 +85,41 @@
 	if(!istype(S))
 		return
 	has_suit = S
-	src.forceMove(S)
+	forceMove(S)
+
+	// inventory handling start
+
+	// todo: don't call dropped/pickup if going to same person
+	if(S.worn_slot)
+		pickup(S.worn_mob(), INV_OP_IS_ACCESSORY)
+		equipped(S.worn_mob(), S.worn_slot, INV_OP_IS_ACCESSORY)
+
+	// inventory handling end
+
 	has_suit.add_overlay(get_inv_overlay())
 
 	if(user)
 		to_chat(user, "<span class='notice'>You attach \the [src] to \the [has_suit].</span>")
 		add_fingerprint(user)
 
-/obj/item/clothing/accessory/proc/on_removed(var/mob/user)
+/obj/item/clothing/accessory/proc/on_removed(mob/user)
 	if(!has_suit)
 		return
+
+	// inventory handling start
+
+	// todo: don't call dropped/pickup if going to same person
+	if(has_suit.worn_slot)
+		unequipped(has_suit.worn_mob(), has_suit.worn_slot, INV_OP_IS_ACCESSORY)
+		dropped(has_suit.worn_mob(), INV_OP_IS_ACCESSORY)
+
+	// inventory handling stop
+
 	has_suit.cut_overlay(get_inv_overlay())
 	has_suit = null
+
 	if(user)
-		usr.put_in_hands(src)
+		user.put_in_hands_or_drop(src)
 		add_fingerprint(user)
 	else if(get_turf(src))		//We actually exist in space
 		forceMove(get_turf(src))
@@ -148,6 +162,10 @@
 /obj/item/clothing/accessory/tie/black
 	name = "black tie"
 	icon_state = "blacktie"
+
+/obj/item/clothing/accessory/tie/black_clip
+	name = "black tie with a clip"
+	icon_state = "blackcliptie"
 
 /obj/item/clothing/accessory/tie/darkgreen
 	name = "dark green tie"
@@ -369,7 +387,7 @@
 	else
 		src.icon_state = initial(icon_state)
 		to_chat(user, "You tug the gaiter down around your neck.")
-	update_clothing_icon()	//so our mob-overlays update
+	update_worn_icon()	//so our mob-overlays update
 
 /obj/item/clothing/accessory/gaiter/tan
 	name = "neck gaiter (tan)"
@@ -417,7 +435,7 @@
 /obj/item/clothing/accessory/bracelet/material/Initialize(mapload, new_material)
 	. = ..(mapload)
 	if(!new_material)
-		new_material = DEFAULT_WALL_MATERIAL
+		new_material = MAT_STEEL
 	material = get_material_by_name(new_material)
 	if(!istype(material))
 		return INITIALIZE_HINT_QDEL
@@ -515,8 +533,8 @@
 	name = "plain choker"
 	slot_flags = SLOT_TIE | SLOT_OCLOTHING
 	desc = "A simple, plain choker. Or maybe it's a collar? Use in-hand to customize it."
-	icon = 'icons/obj/clothing/collars_vr.dmi'
-	icon_override = 'icons/mob/ties.dmi'
+	icon = 'icons/obj/clothing/collars.dmi'
+	icon_override = 'icons/mob/clothing/ties.dmi'
 	icon_state = "choker_cst"
 	item_state = "choker_cst_overlay"
 	overlay_state = "choker_cst_overlay"
@@ -536,17 +554,19 @@
 
 /obj/item/clothing/accessory/collar
 	slot_flags = SLOT_TIE | SLOT_OCLOTHING
-	icon = 'icons/obj/clothing/collars_vr.dmi'
-	icon_override = 'icons/mob/ties.dmi'
-	var/icon_previous_override //yw addition
+	icon = 'icons/obj/clothing/collars.dmi'
+	icon_override = 'icons/mob/clothing/ties.dmi'
+	var/icon_previous_override
 	var/writtenon = 0
 
-//ywedit start. forces different sprite sheet on equip
+// Forces different sprite sheet on equip
 /obj/item/clothing/accessory/collar/Initialize(mapload)
 	. = ..()
 	icon_previous_override = icon_override
 
-/obj/item/clothing/accessory/collar/equipped() //Solution for race-specific sprites for an accessory which is also a suit. Suit icons break if you don't use icon override which then also overrides race-specific sprites.
+// Solution for race-specific sprites for an accessory which is also a suit.
+// Suit icons break if you don't use icon override which then also overrides race-specific sprites.
+/obj/item/clothing/accessory/collar/equipped(mob/user, slot, flags)
 	..()
 	setUniqueSpeciesSprite()
 
@@ -557,8 +577,8 @@
 			H = has_suit.loc
 	if(istype(H))
 		if(H.species.name == SPECIES_TESHARI)
-			icon_override = 'icons/mob/species/teshari/ties.dmi'
-		update_clothing_icon()
+			icon_override = 'icons/mob/clothing/species/teshari/ties.dmi'
+		update_worn_icon()
 
 /obj/item/clothing/accessory/collar/on_attached(var/obj/item/clothing/S, var/mob/user)
 	if(!istype(S))
@@ -567,10 +587,9 @@
 	setUniqueSpeciesSprite()
 	..(S, user)
 
-/obj/item/clothing/accessory/collar/dropped()
+/obj/item/clothing/accessory/collar/dropped(mob/user, flags, atom/newLoc)
 	. = ..()
 	icon_override = icon_previous_override
-//ywedit end
 
 /obj/item/clothing/accessory/collar/silver
 	name = "Silver tag collar"
@@ -745,7 +764,7 @@
 	icon_state = "collar_holo"
 	item_state = "collar_holo_overlay"
 	overlay_state = "collar_holo_overlay"
-	matter = list(DEFAULT_WALL_MATERIAL = 50)
+	matter = list(MAT_STEEL = 50)
 
 /obj/item/clothing/accessory/collar/silvercolor
 	name = "Dyeable Silver tag collar"
@@ -815,7 +834,7 @@
 	to_chat(user,"<span class='notice'>You need a pen or a screwdriver to edit the tag on this collar.</span>")
 
 /obj/item/clothing/accessory/collar/proc/update_collartag(mob/user, obj/item/I, var/erasemethod, var/erasing, var/writemethod)
-	if(!(istype(user.get_active_hand(),I)) || !(istype(user.get_inactive_hand(),src)) || (user.stat))
+	if(!(istype(user.get_active_held_item(),I)) || !(istype(user.get_inactive_held_item(),src)) || (user.stat))
 		return
 
 	var/str = copytext(reject_bad_text(input(user,"Tag text?","Set tag","")),1,MAX_NAME_LEN)
@@ -843,3 +862,22 @@
 /obj/item/clothing/accessory/medal/silver/unity
 	name = "medal of unity"
 	desc = "A silver medal awarded to a group which has demonstrated exceptional teamwork to achieve a notable feat."
+
+//Primal
+/obj/item/clothing/accessory/talisman
+	name = "bone talisman"
+	desc = "A hunter's talisman, some say the old gods smile on those who wear it."
+	icon_state = "talisman"
+	armor = list("melee" = 5, "bullet" = 5, "laser" = 0, "energy" = 0, "bomb" = 10, "bio" = 20, "rad" = 5, "fire" = 0, "acid" = 25)
+
+/obj/item/clothing/accessory/skullcodpiece
+	name = "skull codpiece"
+	desc = "A skull shaped ornament, intended to protect the important things in life."
+	icon_state = "skull"
+	armor = list("melee" = 5, "bullet" = 5, "laser" = 0, "energy" = 0, "bomb" = 10, "bio" = 20, "rad" = 5, "fire" = 0, "acid" = 25)
+
+/obj/item/clothing/accessory/skullcodpiece/fake
+	name = "false codpiece"
+	desc = "A plastic ornament, intended to protect the important things in life. It's not very good at it."
+	icon_state = "skull"
+	armor = list("melee" = 0, "bullet" = 0, "laser" = 0, "energy" = 0, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 0, "acid" = 0)

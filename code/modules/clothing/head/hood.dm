@@ -129,6 +129,7 @@
 /obj/item/clothing/head/hood/ronin
 	name = "ronin heating coils"
 	desc = "Glowing coils designed to ward off cold temperatures."
+	icon_state = "ronin_hood"
 	flags_inv = NONE
 
 // Explorer gear
@@ -136,7 +137,7 @@
 	name = "explorer hood"
 	desc = "An armoured hood for exploring harsh environments."
 	icon_state = "explorer"
-	flags = THICKMATERIAL
+	clothing_flags = THICKMATERIAL
 	min_cold_protection_temperature = SPACE_SUIT_MIN_COLD_PROTECTION_TEMPERATURE
 	siemens_coefficient = 0.9
 	armor = list(melee = 30, bullet = 20, laser = 20, energy = 20, bomb = 35, bio = 75, rad = 35)
@@ -146,7 +147,7 @@
 	name = "eldritch hood"
 	desc = "A baggy hood smeared with some kind of waxy substance. Up close, what appeared to be burlap is revealed to actually be tanned skin."
 	icon_state = "eldritch"
-	flags = THICKMATERIAL
+	clothing_flags = THICKMATERIAL
 	siemens_coefficient = 0.9
 	armor = list(melee = 20, bullet = 0, laser = 40, energy = 40, bomb = 20, bio = 30, rad = 20)
 
@@ -178,3 +179,35 @@
 	name = "tech priest hood"
 	icon_state = "techpriesth"
 
+/obj/item/clothing/head/hood/goliath
+	name = "goliath cloak hood"
+	icon_state = "golhood"
+	desc = "A protective & concealing hood."
+	armor = list("melee" = 35, "bullet" = 10, "laser" = 25, "energy" = 10, "bomb" = 25, "bio" = 0, "rad" = 0, "fire" = 60, "acid" = 60)
+	heat_protection = HEAD
+	max_heat_protection_temperature = FIRE_HELMET_MAX_HEAT_PROTECTION_TEMPERATURE
+
+/obj/item/clothing/head/hood/drake
+	name = "drake helm"
+	icon_state = "dragon"
+	desc = "The skull of a dragon."
+	armor = list("melee" = 70, "bullet" = 20, "laser" = 35, "energy" = 25, "bomb" = 25, "bio" = 0, "rad" = 0, "fire" = 100, "acid" = 100)
+	heat_protection = HEAD
+	max_heat_protection_temperature = FIRE_HELMET_MAX_HEAT_PROTECTION_TEMPERATURE
+
+//Vainglorious
+
+/obj/item/clothing/head/hood/vainglorious
+	name = "Vainglorious hood"
+	desc = "A hood attached to a Vainglorious hoodie."
+	icon_state = "vainglorious"
+
+/obj/item/clothing/head/hood/raincoat
+	name = "raincoat hood"
+	desc = "A hood attached to a raincoat."
+	icon_state = "raincoat"
+
+/obj/item/clothing/head/hood/rainponcho
+	name = "plastic raincoat hood"
+	desc = "A hood attached to a plastic raincoat."
+	icon_state = "rainponcho"

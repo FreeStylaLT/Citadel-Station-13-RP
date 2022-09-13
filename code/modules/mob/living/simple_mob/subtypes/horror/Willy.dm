@@ -36,25 +36,31 @@
 	say_list_type = /datum/say_list/Willy
 	ai_holder_type = /datum/ai_holder/simple_mob/horror
 
+	meat_amount = 3
+	meat_type = /obj/item/reagent_containers/food/snacks/meat/human
+	bone_amount = 1
+	hide_amount = 10
+	hide_type = /obj/item/stack/material/cloth
+
 /mob/living/simple_mob/horror/Willy/death()
 	playsound(src, 'sound/h_sounds/sampler.ogg', 50, 1)
 	..()
 
 /mob/living/simple_mob/horror/Willy/bullet_act()
-    playsound(src, 'sound/h_sounds/holla.ogg', 50, 1)
-    ..()
+	playsound(src, 'sound/h_sounds/holla.ogg', 50, 1)
+	..()
 
 /mob/living/simple_mob/horror/Willy/attack_hand()
-    playsound(src, 'sound/h_sounds/holla.ogg', 50, 1)
-    ..()
+	playsound(src, 'sound/h_sounds/holla.ogg', 50, 1)
+	..()
 
-/mob/living/simple_mob/horror/Willy/hitby()
-    playsound(src, 'sound/h_sounds/holla.ogg', 50, 1)
-    ..()
+/mob/living/simple_mob/horror/Willy/throw_impacted(atom/movable/AM, datum/thrownthing/TT)
+	. = ..()
+	playsound(src, 'sound/h_sounds/holla.ogg', 50, 1)
 
 /mob/living/simple_mob/horror/Willy/attackby()
-    playsound(src, 'sound/h_sounds/holla.ogg', 50, 1)
-    ..()
+	playsound(src, 'sound/h_sounds/holla.ogg', 50, 1)
+	..()
 
 /datum/say_list/Willy
 	speak = list("Uuurrgh?","Aauuugghh...", "AAARRRGH!")

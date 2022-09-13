@@ -8,7 +8,7 @@
 
 	//luminosity = 5
 	//l_color="#0066FF"
-	plane = PLANE_LIGHTING_ABOVE
+	plane = ABOVE_LIGHTING_PLANE
 
 	var/spawned=0 // DIR mask
 	var/next_check=0
@@ -72,6 +72,7 @@
 
 // /vg/: Don't let ghosts fuck with this.
 /turf/unsimulated/wall/supermatter/attack_ghost(mob/user as mob)
+	. = ..()
 	user.examinate(src)
 
 /turf/unsimulated/wall/supermatter/attack_ai(mob/user as mob)
@@ -92,8 +93,6 @@
 		"<span class=\"warning\">Everything suddenly goes silent.</span>")
 
 	playsound(src, 'sound/effects/supermatter.ogg', 50, 1)
-
-	user.drop_from_inventory(W)
 	Consume(W)
 
 
@@ -109,12 +108,11 @@
 		"<span class=\"warning\">You hear a loud crack as you are washed with a wave of heat.</span>")
 
 	playsound(src, 'sound/effects/supermatter.ogg', 50, 1)
-
 	Consume(AM)
 
 
-/turf/unsimulated/wall/supermatter/proc/Consume(var/mob/living/user)
-	if(istype(user,/mob/observer))
+/turf/unsimulated/wall/supermatter/proc/Consume(atom/movable/AM)
+	if((!isobj(AM) && !ismob(AM)) || isobserver(AM))
 		return
 
-	qdel(user)
+	qdel(AM)

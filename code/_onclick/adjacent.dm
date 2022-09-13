@@ -31,7 +31,8 @@
 		return 1
 	if(get_dist(src,T0) > 1)
 		return 0
-	if(T0.z != z) return 0 //VOREStation Add
+	if(T0.z != z)
+		return 0
 	if(T0.x == x || T0.y == y)
 		// Check for border blockages
 		return T0.ClickCross(get_dir(T0,src), border_only = 1) && src.ClickCross(get_dir(src,T0), border_only = 1, target_atom = target)
@@ -104,10 +105,10 @@ Quick adjacency (to turf):
 */
 /obj/machinery/door/Adjacent(var/atom/neighbor)
 	var/obj/machinery/door/firedoor/border_only/BOD = locate() in loc
-	if(BOD)
-		BOD.throwpass = 1 // allow click to pass
+	if(BOD && !(BOD.pass_flags_self & ATOM_PASS_CLICK))
+		BOD.pass_flags_self |= ATOM_PASS_CLICK // allow click to pass
 		. = ..()
-		BOD.throwpass = 0
+		BOD.pass_flags_self &= ATOM_PASS_CLICK
 		return .
 	return ..()
 
@@ -119,7 +120,7 @@ Quick adjacency (to turf):
 */
 /turf/proc/ClickCross(var/target_dir, var/border_only, var/target_atom = null)
 	for(var/obj/O in src)
-		if( !O.density || O == target_atom || O.throwpass) continue // throwpass is used for anything you can click through
+		if( !O.density || O == target_atom || (O.pass_flags_self & ATOM_PASS_CLICK)) continue // throwpass is used for anything you can click through
 
 		if( O.flags&ON_BORDER) // windows have throwpass but are on border, check them first
 			if( O.dir & target_dir || O.dir&(O.dir-1) ) // full tile windows are just diagonals mechanically

@@ -43,7 +43,7 @@ proc/random_hair_style(gender, species = SPECIES_HUMAN)
 			continue
 		if(gender == FEMALE && S.gender == MALE)
 			continue
-		if( !(species in S.species_allowed))
+		if(S.apply_restrictions && !(species in S.species_allowed))
 			continue
 		valid_hairstyles[hairstyle] = hair_styles_list[hairstyle]
 
@@ -62,7 +62,7 @@ proc/random_facial_hair_style(gender, species = SPECIES_HUMAN)
 			continue
 		if(gender == FEMALE && S.gender == MALE)
 			continue
-		if( !(species in S.species_allowed))
+		if(S.apply_restrictions && !(species in S.species_allowed))
 			continue
 
 		valid_facialhairstyles[facialhairstyle] = facial_hair_styles_list[facialhairstyle]
@@ -75,7 +75,7 @@ proc/random_facial_hair_style(gender, species = SPECIES_HUMAN)
 proc/sanitize_name(name, species = SPECIES_HUMAN)
 	var/datum/species/current_species
 	if(species)
-		current_species = GLOB.all_species[species]
+		current_species = name_static_species_meta(species)
 
 	return current_species ? current_species.sanitize_name(name) : sanitizeName(name, MAX_NAME_LEN)
 
@@ -83,7 +83,7 @@ proc/random_name(gender, species = SPECIES_HUMAN)
 
 	var/datum/species/current_species
 	if(species)
-		current_species = GLOB.all_species[species]
+		current_species = name_static_species_meta(species)
 
 	if(!current_species || current_species.name_language == null)
 		if(gender==FEMALE)
@@ -128,13 +128,6 @@ proc/age2agedescription(age)
 		if(70 to INFINITY)	return "elderly"
 		else				return "unknown"
 
-/proc/RoundHealth(health)
-	var/list/icon_states = icon_states(ingame_hud_med)
-	for(var/icon_state in icon_states)
-		if(health >= text2num(icon_state))
-			return icon_state
-	return icon_states[icon_states.len] // If we had no match, return the last element
-
 /*
 Proc for attack log creation, because really why not
 1 argument is the actor
@@ -177,117 +170,6 @@ Proc for attack log creation, because really why not
 	else
 		return pick("chest", "groin")
 
-/proc/do_mob(mob/user , mob/target, time = 30, target_zone = 0, uninterruptible = FALSE, progress = TRUE, ignore_movement = FALSE)
-	if(!user || !target)
-		return 0
-	var/user_loc = user.loc
-	var/target_loc = target.loc
-
-	var/holding = user.get_active_hand()
-	var/datum/progressbar/progbar
-	if (progress)
-		progbar = new(user, time, target)
-
-	var/endtime = world.time+time
-	var/starttime = world.time
-	. = TRUE
-	while (world.time < endtime)
-		stoplag(1)
-		if (progress)
-			progbar.update(world.time - starttime)
-		if(!user || !target)
-			. = FALSE
-			break
-		if(uninterruptible)
-			continue
-
-		if(!user || user.incapacitated())
-			. = FALSE
-			break
-
-		if(user.loc != user_loc && !ignore_movement)
-			. = FALSE
-			break
-
-		if(target.loc != target_loc && !ignore_movement)
-			. = FALSE
-			break
-
-		if(user.get_active_hand() != holding)
-			. = FALSE
-			break
-
-		if(target_zone && user.zone_sel.selecting != target_zone)
-			. = FALSE
-			break
-
-	if (progbar)
-		qdel(progbar)
-
-/proc/do_after(mob/user, delay, atom/target = null, needhand = TRUE, progress = TRUE, incapacitation_flags = INCAPACITATION_DEFAULT, ignore_movement = FALSE, max_distance = null)
-	if(!user)
-		return 0
-	if(!delay)
-		return 1 //Okay. Done.
-	var/atom/target_loc = null
-	if(target)
-		target_loc = target.loc
-
-	var/atom/original_loc = user.loc
-
-	var/obj/mecha/M = null
-
-	if(istype(user.loc, /obj/mecha))
-		original_loc = get_turf(original_loc)
-		M = user.loc
-
-	var/holding = user.get_active_hand()
-
-	var/datum/progressbar/progbar
-	if (progress)
-		progbar = new(user, delay, target)
-
-	var/endtime = world.time + delay
-	var/starttime = world.time
-	. = 1
-	while (world.time < endtime)
-		stoplag(1)
-		if(progress)
-			progbar.update(world.time - starttime)
-
-		if(!user || user.incapacitated(incapacitation_flags))
-			. = FALSE
-			break
-
-		if(M)
-			if(user.loc != M || (M.loc != original_loc && !ignore_movement)) // Mech coooooode.
-				. = FALSE
-				break
-
-		else if(user.loc != original_loc && !ignore_movement)
-			. = FALSE
-			break
-
-		if(target_loc && (QDELETED(target)))
-			. = FALSE
-			break
-
-		if(target && target_loc != target.loc && !ignore_movement)
-			. = FALSE
-			break
-
-		if(needhand)
-			if(user.get_active_hand() != holding)
-				. = FALSE
-				break
-
-		if(max_distance && target && get_dist(user, target) > max_distance)
-			. = FALSE
-			break
-
-	if(progbar)
-		qdel(progbar)
-
 /atom/proc/living_mobs(var/range = world.view)
 	var/list/viewers = oviewers(src,range)
 	var/list/living = list()
@@ -296,7 +178,7 @@ Proc for attack log creation, because really why not
 
 	return living
 
-/atom/proc/human_mobs(var/range = world.view)
+/atom/proc/human_mobs(range = world.view)
 	var/list/viewers = oviewers(src,range)
 	var/list/humans = list()
 	for(var/mob/living/carbon/human/H in viewers)
@@ -304,7 +186,7 @@ Proc for attack log creation, because really why not
 
 	return humans
 
-/proc/cached_character_icon(var/mob/desired)
+/proc/cached_character_icon(mob/desired)
 	var/cachekey = "\ref[desired][desired.real_name]"
 
 	if(cached_character_icons[cachekey])
@@ -312,3 +194,7 @@ Proc for attack log creation, because really why not
 	else
 		. = getCompoundIcon(desired)
 		cached_character_icons[cachekey] = .
+
+/// Gets the client of the mob, allowing for mocking of the client.
+/// You only need to use this if you know you're going to be mocking clients somewhere else.
+#define GET_CLIENT(mob) (##mob.client || ##mob.mock_client)

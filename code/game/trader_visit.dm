@@ -3,9 +3,6 @@
 var/global/hire_nebula = 0
 var/can_call_traders = 1
 
-//I'm disabling this for now, until Overmaps/Nebula Gas is reinstated.
-
-/*
 /client/proc/trader_ship()
 	set name = "Hire Nebula Gas Employees"
 	set category = "Special Verbs"
@@ -13,9 +10,6 @@ var/can_call_traders = 1
 
 	if(!holder)
 		to_chat(usr, "<span class='danger'>Only administrators may use this command.</span>")
-		return
-	if(!SSticker)
-		to_chat(usr, "<span class='danger'>The game hasn't started yet!</span>")
 		return
 	if(SSticker.current_state == 1)
 		to_chat(usr, "<span class='danger'>The round hasn't started yet!</span>")
@@ -63,4 +57,3 @@ proc/trigger_trader_visit()
 	hire_nebula = 1
 
 	sleep(600 * 5)
-*/

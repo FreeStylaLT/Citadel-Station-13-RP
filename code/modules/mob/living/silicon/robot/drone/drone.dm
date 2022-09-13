@@ -1,8 +1,8 @@
 var/list/mob_hat_cache = list()
 /proc/get_hat_icon(var/obj/item/hat, var/offset_x = 0, var/offset_y = 0)
 	var/t_state = hat.icon_state
-	if(hat.item_state_slots && hat.item_state_slots[slot_head_str])
-		t_state = hat.item_state_slots[slot_head_str]
+	if(hat.item_state_slots && hat.item_state_slots[SLOT_ID_HEAD])
+		t_state = hat.item_state_slots[SLOT_ID_HEAD]
 	else if(hat.item_state)
 		t_state = hat.item_state
 	var/key = "[t_state]_[offset_x]_[offset_y]"
@@ -10,8 +10,8 @@ var/list/mob_hat_cache = list()
 		var/t_icon = INV_HEAD_DEF_ICON // are unique across multiple dmis, but whatever.
 		if(hat.icon_override)
 			t_icon = hat.icon_override
-		else if(hat.item_icons && (slot_head_str in hat.item_icons))
-			t_icon = hat.item_icons[slot_head_str]
+		else if(hat.item_icons && (SLOT_ID_HEAD in hat.item_icons))
+			t_icon = hat.item_icons[SLOT_ID_HEAD]
 		var/image/I = image(icon = t_icon, icon_state = t_state)
 		I.pixel_x = offset_x
 		I.pixel_y = offset_y
@@ -29,7 +29,7 @@ var/list/mob_hat_cache = list()
 	universal_speak = 0
 	universal_understand = 1
 	gender = NEUTER
-	pass_flags = PASSTABLE
+	pass_flags = ATOM_PASS_TABLE
 	braintype = "Drone"
 	lawupdate = 0
 	density = 1
@@ -47,7 +47,7 @@ var/list/mob_hat_cache = list()
 	mob_push_flags = SIMPLE_ANIMAL
 	mob_always_swap = 1
 
-	mob_size = MOB_LARGE // Small mobs can't open doors, it's a huge pain for drones.
+	mob_size = MOB_SMALL // pulled here from a _vr file
 
 	//Used for self-mailing.
 	var/mail_destination = ""
@@ -70,6 +70,11 @@ var/list/mob_hat_cache = list()
 	if(hat)
 		hat.loc = get_turf(src)
 	..()
+
+/mob/living/silicon/robot/drone/ghost()
+	. = ..()
+	if (!ckey)
+		death()
 
 /mob/living/silicon/robot/drone/is_sentient()
 	return FALSE
@@ -170,7 +175,8 @@ var/list/mob_hat_cache = list()
 		if(hat)
 			to_chat(user, "<span class='warning'>\The [src] is already wearing \the [hat].</span>")
 			return
-		user.unEquip(W)
+		if(!user.attempt_insert_item_for_installation(W, src))
+			return
 		wear_hat(W)
 		user.visible_message("<span class='notice'>\The [user] puts \the [W] on \the [src].</span>")
 		return
@@ -255,7 +261,7 @@ var/list/mob_hat_cache = list()
 /mob/living/silicon/robot/drone/updatehealth()
 	if(status_flags & GODMODE)
 		health = maxHealth
-		stat = CONSCIOUS
+		set_stat(CONSCIOUS)
 		return
 	health = maxHealth - (getBruteLoss() + getFireLoss())
 	return

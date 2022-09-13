@@ -17,7 +17,7 @@
 	universal_understand = 1
 
 	mob_size = MOB_SMALL
-	pass_flags = PASSTABLE
+	pass_flags = ATOM_PASS_TABLE
 //	can_pull_size = ITEMSIZE_TINY
 //	can_pull_mobs = MOB_PULL_NONE
 	layer = MOB_LAYER
@@ -43,7 +43,7 @@
 
 	var/body_color //brown, gray and white, leave blank for random
 
-/mob/living/simple_mob/mouse/Life()
+/mob/living/simple_mob/mouse/Life(seconds, times_fired)
 	. = ..()
 	if(!. || ai_inactive) return
 
@@ -84,7 +84,7 @@
 
 /mob/living/simple_mob/mouse/proc/splat()
 	src.health = 0
-	src.stat = DEAD
+	src.set_stat(DEAD)
 	src.icon_dead = "mouse_[body_color]_splat"
 	src.icon_state = "mouse_[body_color]_splat"
 	layer = MOB_LAYER

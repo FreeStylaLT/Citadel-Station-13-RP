@@ -65,11 +65,11 @@
 		if(H.honey)
 			to_chat(user, "<span class='notice'>\The [I] is full with beeswax and honey, empty it in the extractor first.</span>")
 			return
+		if(!user.attempt_consume_item_for_construction(I))
+			return
 		++frames
 		user.visible_message("<span class='notice'>[user] loads \the [I] into \the [src].</span>", "<span class='notice'>You load \the [I] into \the [src].</span>")
 		update_icon()
-		user.drop_from_inventory(I)
-		qdel(I)
 		return
 	else if(istype(I, /obj/item/bee_pack))
 		var/obj/item/bee_pack/B = I
@@ -230,34 +230,7 @@
 	if(do_after(user, 30))
 		user.visible_message("<span class='notice'>[user] constructs a beehive.</span>", "<span class='notice'>You construct a beehive.</span>")
 		new /obj/machinery/beehive(get_turf(user))
-		user.drop_from_inventory(src)
 		qdel(src)
-
-/obj/item/stack/material/wax
-	name = "wax"
-	singular_name = "wax piece"
-	desc = "Soft substance produced by bees. Used to make candles."
-	icon = 'icons/obj/beekeeping.dmi'
-	icon_state = "wax"
-	default_type = "wax"
-	pass_color = TRUE
-	strict_color_stacking = TRUE
-
-/obj/item/stack/material/wax/Initialize(mapload, new_amount, merge)
-	. = ..()
-	recipes = wax_recipes
-
-/datum/material/wax
-	name = "wax"
-	stack_type = /obj/item/stack/material/wax
-	icon_colour = "#fff343"
-	melting_point = T0C+300
-	weight = 1
-	pass_stack_colors = TRUE
-
-var/global/list/datum/stack_recipe/wax_recipes = list( \
-	new/datum/stack_recipe("candle", /obj/item/flame/candle) \
-)
 
 /obj/item/bee_pack
 	name = "bee pack"

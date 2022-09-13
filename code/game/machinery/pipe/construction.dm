@@ -9,7 +9,7 @@ Buildable meters
 	var/pipe_type
 	var/pipename
 	force = 7
-	throwforce = 7
+	throw_force = 7
 	icon = 'icons/obj/pipe-item.dmi'
 	icon_state = "simple"
 	item_state = "buildpipe"
@@ -38,7 +38,7 @@ Buildable meters
  * @param loc Location
  * @pipe_type
  */
-/obj/item/pipe/Initialize(var/mapload, var/_pipe_type, var/_dir, var/obj/machinery/atmospherics/make_from)
+/obj/item/pipe/Initialize(mapload, _pipe_type, _dir, obj/machinery/atmospherics/make_from)
 	if(make_from)
 		make_from_existing(make_from)
 	else
@@ -60,12 +60,12 @@ Buildable meters
 	color = make_from.pipe_color
 	pipe_type = make_from.type
 
-/obj/item/pipe/trinary/flippable/make_from_existing(obj/machinery/atmospherics/trinary/make_from)
+/obj/item/pipe/trinary/flippable/make_from_existing(obj/machinery/atmospherics/component/trinary/make_from)
 	..()
 	if(make_from.mirrored)
 		do_a_flip()
 
-/obj/item/pipe/dropped()
+/obj/item/pipe/dropped(mob/user, flags, atom/newLoc)
 	if(loc)
 		setPipingLayer(piping_layer)
 	return ..()
@@ -75,7 +75,6 @@ Buildable meters
 	if(initial(fakeA.pipe_flags) & (PIPING_ALL_LAYER|PIPING_DEFAULT_LAYER_ONLY))
 		new_layer = PIPING_LAYER_DEFAULT
 	piping_layer = new_layer
-	// Do it the Polaris way
 	switch(piping_layer)
 		if(PIPING_LAYER_SCRUBBER)
 			color = PIPE_COLOR_RED
@@ -166,9 +165,10 @@ Buildable meters
 
 //called when a turf is attacked with a pipe item
 /obj/item/pipe/afterattack(turf/simulated/floor/target, mob/user, proximity)
-	if(!proximity) return
-	if(istype(target) && user.canUnEquip(src))
-		user.drop_from_inventory(src, target)
+	if(!proximity)
+		return
+	if(istype(target))
+		user.transfer_item_to_loc(src, target)
 	else
 		return ..()
 
@@ -177,7 +177,7 @@ Buildable meters
 		return wrench_act(user, W)
 	return ..()
 
-/obj/item/pipe/proc/wrench_act(var/mob/living/user, var/obj/item/tool/wrench/W)
+/obj/item/pipe/wrench_act(var/mob/living/user, var/obj/item/tool/wrench/W)
 	if(!isturf(loc))
 		return TRUE
 
@@ -225,7 +225,7 @@ Buildable meters
 		A.req_one_access = req_one_access
 	A.on_construction(color, piping_layer)
 
-/obj/item/pipe/trinary/flippable/build_pipe(obj/machinery/atmospherics/trinary/T)
+/obj/item/pipe/trinary/flippable/build_pipe(obj/machinery/atmospherics/component/trinary/T)
 	T.mirrored = mirrored
 	. = ..()
 
@@ -266,7 +266,7 @@ Buildable meters
 		return wrench_act(user, W)
 	return ..()
 
-/obj/item/pipe_meter/proc/wrench_act(var/mob/living/user, var/obj/item/tool/wrench/W)
+/obj/item/pipe_meter/wrench_act(var/mob/living/user, var/obj/item/tool/wrench/W)
 	var/obj/machinery/atmospherics/pipe/pipe
 	for(var/obj/machinery/atmospherics/pipe/P in loc)
 		if(P.piping_layer == piping_layer)
@@ -280,7 +280,7 @@ Buildable meters
 	to_chat(user, "<span class='notice'>You fasten the meter to the pipe.</span>")
 	qdel(src)
 
-/obj/item/pipe_meter/dropped()
+/obj/item/pipe_meter/dropped(mob/user, flags, atom/newLoc)
 	. = ..()
 	if(loc)
 		setAttachLayer(piping_layer)

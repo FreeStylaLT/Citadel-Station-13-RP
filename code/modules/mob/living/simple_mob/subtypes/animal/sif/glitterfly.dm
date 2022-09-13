@@ -49,7 +49,7 @@
 
 	density = FALSE	// Non-dense, so things can walk through their groups unhindered.
 
-	pass_flags = PASSTABLE
+	pass_flags = ATOM_PASS_TABLE
 
 	attacktext = list("bit", "buffeted", "slashed")
 
@@ -77,7 +77,7 @@
 
 	melee_damage_upper = 5
 
-	plane = PLANE_LIGHTING_ABOVE
+	plane = ABOVE_LIGHTING_PLANE
 
 /mob/living/simple_mob/animal/sif/glitterfly/rare/Initialize(mapload)
 	. = ..()

@@ -15,8 +15,7 @@
 	input_tag = "cooling_in";
 	name = "Engine Cooling Control";
 	output_tag = "cooling_out";
-	sensors = list("engine_sensor" = "Engine Core");
-	throwpass = 1
+	sensors = list("engine_sensor" = "Engine Core")
 	},
 /turf/template_noop,
 /area/template_noop)
@@ -276,7 +275,7 @@
 /turf/simulated/floor,
 /area/engineering/engine_room)
 "aR" = (
-/obj/machinery/atmospherics/unary/outlet_injector{
+/obj/machinery/atmospherics/component/unary/outlet_injector{
 	unacidable = 1;
 	use_power = 1
 	},
@@ -291,7 +290,7 @@
 /turf/simulated/floor/reinforced,
 /area/engineering/engine_room)
 "aT" = (
-/obj/machinery/atmospherics/unary/vent_pump/high_volume{
+/obj/machinery/atmospherics/component/unary/vent_pump/high_volume{
 	pump_direction = 0;
 	use_power = 1
 	},
@@ -315,7 +314,7 @@
 /turf/simulated/floor,
 /area/engineering/engine_room)
 "aW" = (
-/obj/machinery/atmospherics/unary/outlet_injector{
+/obj/machinery/atmospherics/component/unary/outlet_injector{
 	dir = 4;
 	use_power = 1
 	},
@@ -326,14 +325,14 @@
 /turf/simulated/floor/reinforced,
 /area/engineering/engine_room)
 "aY" = (
-/obj/machinery/atmospherics/unary/outlet_injector{
+/obj/machinery/atmospherics/component/unary/outlet_injector{
 	dir = 8;
 	use_power = 1
 	},
 /turf/simulated/floor/reinforced,
 /area/engineering/engine_room)
 "aZ" = (
-/obj/machinery/atmospherics/unary/vent_pump/high_volume{
+/obj/machinery/atmospherics/component/unary/vent_pump/high_volume{
 	dir = 4;
 	pump_direction = 0;
 	use_power = 1
@@ -345,7 +344,7 @@
 /turf/simulated/floor/reinforced,
 /area/engineering/engine_room)
 "bb" = (
-/obj/machinery/atmospherics/unary/vent_pump/high_volume{
+/obj/machinery/atmospherics/component/unary/vent_pump/high_volume{
 	dir = 8;
 	pump_direction = 0;
 	use_power = 1
@@ -600,7 +599,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/machinery/atmospherics/unary/vent_scrubber/on,
+/obj/machinery/atmospherics/component/unary/vent_scrubber/on,
 /turf/simulated/floor,
 /area/engineering/engine_room)
 "bJ" = (
@@ -778,11 +777,11 @@
 /turf/simulated/floor,
 /area/engineering/engine_room)
 "cb" = (
-/obj/machinery/atmospherics/binary/pump,
+/obj/machinery/atmospherics/component/binary/pump,
 /turf/simulated/floor,
 /area/engineering/engine_room)
 "cc" = (
-/obj/machinery/atmospherics/binary/pump{
+/obj/machinery/atmospherics/component/binary/pump{
 	dir = 1
 	},
 /turf/simulated/floor,
@@ -795,7 +794,7 @@
 /turf/simulated/floor,
 /area/engineering/engine_room)
 "ce" = (
-/obj/machinery/atmospherics/binary/circulator{
+/obj/machinery/atmospherics/component/binary/circulator{
 	anchored = 1;
 	dir = 1
 	},
@@ -813,7 +812,7 @@
 /turf/simulated/floor,
 /area/engineering/engine_room)
 "cg" = (
-/obj/machinery/atmospherics/binary/circulator{
+/obj/machinery/atmospherics/component/binary/circulator{
 	anchored = 1
 	},
 /turf/simulated/floor,
@@ -831,7 +830,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/obj/machinery/atmospherics/unary/vent_pump/on{
+/obj/machinery/atmospherics/component/unary/vent_pump/on{
 	dir = 1
 	},
 /turf/simulated/floor,
@@ -864,7 +863,7 @@
 /obj/effect/floor_decal/industrial/warning{
 	dir = 8
 	},
-/obj/machinery/atmospherics/binary/pump/high_power,
+/obj/machinery/atmospherics/component/binary/pump/high_power,
 /turf/simulated/floor,
 /area/engineering/engine_room)
 "cm" = (
@@ -1246,13 +1245,13 @@
 /turf/simulated/floor,
 /area/engineering/engine_gas)
 "dg" = (
-/obj/machinery/atmospherics/unary/vent_pump/on{
+/obj/machinery/atmospherics/component/unary/vent_pump/on{
 	dir = 4
 	},
 /turf/simulated/floor,
 /area/engineering/engine_gas)
 "dh" = (
-/obj/effect/decal/cleanable/dirt,
+/obj/effect/debris/cleanable/dirt,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 10
 	},
@@ -1292,14 +1291,14 @@
 /turf/simulated/floor,
 /area/engineering/engine_gas)
 "dm" = (
-/obj/effect/decal/cleanable/dirt,
-/obj/machinery/atmospherics/unary/vent_scrubber/on{
+/obj/effect/debris/cleanable/dirt,
+/obj/machinery/atmospherics/component/unary/vent_scrubber/on{
 	dir = 4
 	},
 /turf/simulated/floor,
 /area/engineering/engine_gas)
 "dn" = (
-/obj/effect/decal/cleanable/dirt,
+/obj/effect/debris/cleanable/dirt,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 10
@@ -1334,7 +1333,7 @@
 /turf/simulated/floor,
 /area/engineering/engine_gas)
 "dq" = (
-/obj/effect/decal/cleanable/dirt,
+/obj/effect/debris/cleanable/dirt,
 /obj/effect/floor_decal/industrial/warning/corner,
 /turf/simulated/floor,
 /area/engineering/engine_gas)

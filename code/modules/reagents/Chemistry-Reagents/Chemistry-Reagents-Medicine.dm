@@ -151,8 +151,7 @@
 		chem_effective = 0.5
 		M.adjustBruteLoss(2 * removed) //Mends burns, but has negative effects with a Promethean's skeletal structure.
 	if(alien != IS_DIONA)
-		M.heal_organ_damage(0, 4 * removed * chem_effective) //VOREStation edit
-
+		M.heal_organ_damage(0, 4 * removed * chem_effective)
 /datum/reagent/dermaline
 	name = "Dermaline"
 	id = "dermaline"
@@ -169,8 +168,7 @@
 	if(alien == IS_SLIME)
 		chem_effective = 0.75
 	if(alien != IS_DIONA)
-		M.heal_organ_damage(0, 8 * removed * chem_effective) //VOREStation edit
-/*
+		M.heal_organ_damage(0, 8 * removed * chem_effective)/*
 /datum/reagent/dermaline/topical//Main way to obtain is destiller
 	name = "Dermalaze"
 	id = "dermalaze"
@@ -244,7 +242,7 @@
 			if(L.robotic >= ORGAN_ROBOT)
 				return
 			if(L.damage > 0)
-				L.damage = max(L.damage - 2 * removed, 0)//Heals the liver
+				L.heal_damage_i(2 * removed, can_revive = TRUE)
 		if(alien == IS_SLIME)
 			H.druggy = max(M.druggy, 5)
 
@@ -257,8 +255,7 @@
 	color = "#0080FF"
 	overdose = REAGENTS_OVERDOSE
 	scannable = 1
-	metabolism = REM * 0.25 //VOREStation Edit
-
+	metabolism = REM * 0.25
 /datum/reagent/dexalin/affect_blood(var/mob/living/carbon/M, var/alien, var/removed)
 	if(alien == IS_VOX)
 		M.adjustToxLoss(removed * 24) //Vox breath phoron, oxygen is rather deadly to them
@@ -274,8 +271,7 @@
 		M.adjustOxyLoss(-60 * removed) //Heals alot of oxyloss damage/but
 		//keep in mind that Dexaline has a metabolism rate of 0.25*REM meaning only 0.25 units are removed every tick(if your metabolism takes usuall 1u per tick)
 
-	holder.remove_reagent("lexorin", 8 * removed) //VOREStation Edit
-
+	holder.remove_reagent("lexorin", 8 * removed)
 /datum/reagent/dexalinp
 	name = "Dexalin Plus"
 	id = "dexalinp"
@@ -660,7 +656,7 @@
 			if(E.robotic >= ORGAN_ROBOT)
 				return
 			if(E.damage > 0)
-				E.damage = max(E.damage - 5 * removed, 0)
+				E.heal_damage_i(5 * removed, can_revive = TRUE)
 			if(E.damage <= 5 && E.organ_tag == O_EYES)
 				H.sdisabilities &= ~BLIND
 
@@ -681,7 +677,7 @@
 			if(I.robotic >= ORGAN_ROBOT)
 				continue
 			if(I.damage > 0) //Peridaxon heals only non-robotic organs
-				I.damage = max(I.damage - removed, 0)
+				I.heal_damage_i(removed, can_revive = TRUE)
 				H.Confuse(5)
 			if(I.damage <= 5 && I.organ_tag == O_EYES)
 				H.eye_blurry = min(M.eye_blurry + 10, 100) //Eyes need to reset, or something
@@ -706,7 +702,7 @@
 		var/mob/living/carbon/human/H = M
 		for(var/obj/item/organ/I in H.internal_organs)
 			if(I.damage > 0)
-				I.damage = max(I.damage - removed, 0)
+				I.heal_damage_i(removed, can_revive = TRUE)
 				H.Confuse(5)
 			if(I.damage <= 5 && I.organ_tag == O_EYES)
 				H.eye_blurry = min(M.eye_blurry + 10, 100) //Eyes need to reset, or something
@@ -788,7 +784,7 @@
 			if(I.robotic >= ORGAN_ROBOT || !(I.organ_tag in list(O_LUNGS, O_VOICE, O_GBLADDER)))
 				continue
 			if(I.damage > 0)
-				I.damage = max(I.damage - 4 * removed * repair_strength, 0)
+				I.heal_damage_i(4 * removed * repair_strength, can_revive = TRUE)
 				H.Confuse(2)
 		if(M.reagents.has_reagent("gastirodaxon") || M.reagents.has_reagent("peridaxon"))
 			if(H.losebreath >= 15 && prob(H.losebreath))
@@ -819,7 +815,7 @@
 			if(I.robotic >= ORGAN_ROBOT || !(I.organ_tag in list(O_APPENDIX, O_STOMACH, O_INTESTINE, O_NUTRIENT, O_PLASMA, O_POLYP)))
 				continue
 			if(I.damage > 0)
-				I.damage = max(I.damage - 4 * removed * repair_strength, 0)
+				I.heal_damage_i(4 * removed * repair_strength, can_revive = TRUE)
 				H.Confuse(2)
 		if(M.reagents.has_reagent("hepanephrodaxon") || M.reagents.has_reagent("peridaxon"))
 			if(prob(10))
@@ -850,7 +846,7 @@
 			if(I.robotic >= ORGAN_ROBOT || !(I.organ_tag in list(O_LIVER, O_KIDNEYS, O_APPENDIX, O_ACID, O_HIVE)))
 				continue
 			if(I.damage > 0)
-				I.damage = max(I.damage - 4 * removed * repair_strength, 0)
+				I.heal_damage_i(4 * removed * repair_strength, can_revive = TRUE)
 				H.Confuse(2)
 		if(M.reagents.has_reagent("cordradaxon") || M.reagents.has_reagent("peridaxon"))
 			if(prob(5))
@@ -883,7 +879,7 @@
 			if(I.robotic >= ORGAN_ROBOT || !(I.organ_tag in list(O_HEART, O_SPLEEN, O_RESPONSE, O_ANCHOR, O_EGG)))
 				continue
 			if(I.damage > 0)
-				I.damage = max(I.damage - 4 * removed * repair_strength, 0)
+				I.heal_damage_i(4 * removed * repair_strength, can_revive = TRUE)
 				H.Confuse(2)
 		if(M.reagents.has_reagent("respirodaxon") || M.reagents.has_reagent("peridaxon"))
 			H.losebreath = clamp(H.losebreath + 1, 0, 10)
@@ -1190,7 +1186,7 @@
 		M.hallucination = max(M.hallucination, 10)
 
 	//One of the levofloxacin side effects is 'spontaneous tendon rupture', which I'll immitate here. 1:1000 chance, so, pretty darn rare.
-	if(ishuman(M) && rand(1,10000) == 1) //VOREStation Edit (more rare)
+	if(ishuman(M) && rand(1,10000) == 1)
 		var/obj/item/organ/external/eo = pick(H.organs) //Misleading variable name, 'organs' is only external organs
 		eo.fracture()
 
@@ -1274,7 +1270,7 @@
 	T.germ_level -= min(volume*20, T.germ_level)
 	for(var/obj/item/I in T.contents)
 		I.was_bloodied = null
-	for(var/obj/effect/decal/cleanable/blood/B in T)
+	for(var/obj/effect/debris/cleanable/blood/B in T)
 		qdel(B)
 
 /datum/reagent/sterilizine/touch_mob(var/mob/living/L, var/amount)
@@ -1476,7 +1472,8 @@
 	reagent_state = REAGENT_SOLID
 	color = "#555555"
 	metabolism = REM * 4 // Nanomachines gotta go fast.
-	scannable = 1
+	scannable = TRUE
+	affects_robots = TRUE
 
 /datum/reagent/healing_nanites/affect_blood(var/mob/living/carbon/M, var/alien, var/removed)
 	M.heal_organ_damage(2 * removed, 2 * removed)
@@ -1576,9 +1573,9 @@
 	var/datum/gas_mixture/environment = T.return_air()
 	var/min_temperature = T0C + 100 // 100C, the boiling point of water
 
-	var/hotspot = (locate(/obj/fire) in T)
+	var/hotspot = (locate(/atom/movable/fire) in T)
 	if(hotspot && !isspaceturf(T))
-		var/datum/gas_mixture/lowertemp = T.remove_air(T.air.total_moles)
+		var/datum/gas_mixture/lowertemp = T.remove_cell_volume()
 		lowertemp.temperature = max(min(lowertemp.temperature-2000, lowertemp.temperature / 2), 0)
 		lowertemp.react()
 		T.assume_air(lowertemp)

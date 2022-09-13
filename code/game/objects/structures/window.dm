@@ -1,9 +1,10 @@
 /obj/structure/window
 	name = "window"
 	desc = "A window."
-	icon = 'icons/obj/structures_vr.dmi' // VOREStation Edit - New icons
-	density = 1
-	can_atmos_pass = ATMOS_PASS_DENSITY
+	icon = 'icons/obj/structures_vr.dmi'
+	density = TRUE
+	pass_flags_self = ATOM_PASS_GLASS
+	CanAtmosPass = ATMOS_PASS_PROC
 	w_class = ITEMSIZE_NORMAL
 
 	layer = WINDOW_LAYER
@@ -11,8 +12,8 @@
 	anchored = 1.0
 	flags = ON_BORDER
 	var/maxhealth = 14.0
-	var/maximal_heat = T0C + 100 		// Maximal heat before this window begins taking damage from fire
-	var/damage_per_fire_tick = 2.0 		// Amount of damage per fire tick. Regular windows are not fireproof so they might as well break quickly.
+	var/maximal_heat = T0C + 100 // Maximal heat before this window begins taking damage from fire
+	var/damage_per_fire_tick = 2.0 // Amount of damage per fire tick. Regular windows are not fireproof so they might as well break quickly.
 	var/health
 	var/force_threshold = 0
 	var/ini_dir = null
@@ -141,41 +142,49 @@
 	take_damage(50)
 
 /obj/structure/window/CanAllowThrough(atom/movable/mover, turf/target)
-	if(istype(mover) && mover.checkpass(PASSGLASS))
+	if(istype(mover, /obj/structure/window))
+		// if they're a window we have special handling
+		var/obj/structure/window/them = mover
+		if(is_fulltile() || them.is_fulltile())
+			// OUT.
+			return FALSE
+		// we're both single-way
+		if(them.dir == dir)
+			// OUT
+			return FALSE
 		return TRUE
+	if(!is_fulltile() && !(get_dir(mover, target) & turn(dir, 180)))
+		// we don't care about them if we're not fulltile and they're not moving into us
+		return TRUE
+	return ..()
+
+/obj/structure/window/CanAtmosPass(turf/T, d)
+	if(is_fulltile() || (d == dir))
+		return anchored? ATMOS_PASS_AIR_BLOCKED : ATMOS_PASS_NOT_BLOCKED
+	return ATMOS_PASS_NOT_BLOCKED
+
+/obj/structure/window/CheckExit(atom/movable/AM, turf/target)
 	if(is_fulltile())
-		return FALSE	//full tile window, you can't move into it!
-	if((get_dir(loc, target) & dir) || (get_dir(mover, target) == turn(dir, 180)))
-		return !density
-	else
 		return TRUE
-
-
-/obj/structure/window/CanZASPass(turf/T, is_zone)
-	if(is_fulltile() || get_dir(T, loc) == turn(dir, 180)) // Make sure we're handling the border correctly.
-		return anchored ? ATMOS_PASS_NO : ATMOS_PASS_YES // If it's anchored, it'll block air.
-	return ATMOS_PASS_YES // Don't stop airflow from the other sides.
-
-/obj/structure/window/CheckExit(atom/movable/O as mob|obj, target as turf)
-	if(istype(O) && O.checkpass(PASSGLASS))
-		return 1
-	if(get_dir(O.loc, target) == dir)
-		return 0
-	return 1
+	if(check_standard_flag_pass(AM))
+		return TRUE
+	if(get_dir(AM, target) == dir)
+		return FALSE
+	return TRUE
 
 /obj/structure/window/setDir(newdir)
 	. = ..()
 	update_nearby_tiles(need_rebuild = TRUE)
 
-/obj/structure/window/hitby(AM as mob|obj)
-	..()
+/obj/structure/window/throw_impacted(atom/movable/AM, datum/thrownthing/TT)
+	. = ..()
 	visible_message("<span class='danger'>[src] was hit by [AM].</span>")
 	var/tforce = 0
 	if(ismob(AM))
 		tforce = 40
 	else if(isobj(AM))
 		var/obj/item/I = AM
-		tforce = I.throwforce
+		tforce = I.throw_force * TT.get_damage_multiplier()
 	if(reinf) tforce *= 0.25
 	if(health - tforce <= 7 && !reinf)
 		anchored = 0
@@ -274,7 +283,8 @@
 					hit(50)
 			return
 
-	if(W.flags & NOBLUDGEON) return
+	if(W.item_flags & NOBLUDGEON)
+		return
 
 	if(W.is_screwdriver())
 		if(reinf && state >= 1)
@@ -353,7 +363,7 @@
 
 
 /obj/structure/window/verb/rotate_counterclockwise()
-	set name = "Rotate Window Counterclockwise"
+	set name = "Rotate Counterclockwise" // Temporary fix until someone more intelligent figures out how to add proper rotation verbs to the panels
 	set category = "Object"
 	set src in oview(1)
 
@@ -371,7 +381,7 @@
 	updateSilicate()
 
 /obj/structure/window/verb/rotate_clockwise()
-	set name = "Rotate Window Clockwise"
+	set name = "Rotate Clockwise"
 	set category = "Object"
 	set src in oview(1)
 
@@ -387,6 +397,15 @@
 
 	setDir(turn(dir, 270))
 	updateSilicate()
+
+//! Does this work? idk. Let's call it TBI.
+/obj/structure/window/CanAStarPass(obj/item/card/id/ID, to_dir, atom/movable/caller)
+	if(!density)
+		return TRUE
+	if((is_fulltile()) || (dir == to_dir))
+		return FALSE
+
+	return TRUE
 
 /obj/structure/window/Initialize(mapload, start_dir, constructed = FALSE)
 	. = ..(mapload)
@@ -596,7 +615,7 @@
 			return TRUE
 		// Otherwise fall back to asking them
 		var/t = sanitizeSafe(input(user, "Enter the ID for the window.", src.name, null), MAX_NAME_LEN)
-		if (!t && user.get_active_hand() != W && in_range(src, user))
+		if (!t && user.get_active_held_item() != W && in_range(src, user))
 			src.id = t
 			to_chat(user, "<span class='notice'>The new ID of \the [src] is [id]</span>")
 			return TRUE
@@ -651,7 +670,7 @@
 		if(!id)
 			// If no ID is set yet (newly built button?) let them select an ID for first-time use!
 			var/t = sanitizeSafe(input(user, "Enter an ID for \the [src].", src.name, null), MAX_NAME_LEN)
-			if (t && user.get_active_hand() != W && in_range(src, user))
+			if (t && user.get_active_held_item() != W && in_range(src, user))
 				src.id = t
 				to_chat(user, "<span class='notice'>The new ID of \the [src] is [id]</span>")
 		if(id)
@@ -661,6 +680,48 @@
 			MT.update_icon()
 		return TRUE
 	. = ..()
+
+/obj/structure/window/wooden
+	name = "wooden panel"
+	desc = "A set of wooden panelling, designed to hide the drab grey walls."
+	icon_state = "woodpanel"
+	basestate = "woodpanel"
+	glasstype = /obj/item/stack/material/wood
+	shardtype = /obj/item/material/shard/wood
+	maximal_heat = T0C + 300 // Same as wooden walls "melting"
+	damage_per_fire_tick = 2.0
+	maxhealth = 10.0
+	force_threshold = 3
+	opacity = 1
+
+/obj/structure/window/wooden/take_damage(var/damage = 0,  var/sound_effect = 1)
+	var/initialhealth = health
+
+	health = max(0, health - damage)
+
+	if(health <= 0)
+		shatter()
+	else
+		if(sound_effect)
+			playsound(loc, 'sound/effects/woodcutting.ogg', 100, 1)
+		if(health < maxhealth / 4 && initialhealth >= maxhealth / 4)
+			visible_message("[src] looks like it's about to fall apart!" )
+			update_icon()
+		else if(health < maxhealth / 2 && initialhealth >= maxhealth / 2)
+			visible_message("[src] looks seriously damaged!" )
+			update_icon()
+		else if(health < maxhealth * 3/4 && initialhealth >= maxhealth * 3/4)
+			visible_message("Cracks begin to appear in [src]!" )
+			update_icon()
+	return
+
+/obj/structure/window/wooden/shatter(var/display_message = 1)
+	playsound(loc, 'sound/effects/woodcutting.ogg', 100, 1)
+	if(display_message)
+		visible_message("[src] falls apart!")
+	new shardtype(loc)
+	qdel(src)
+	return
 
 /obj/structure/window/rcd_values(mob/living/user, obj/item/rcd/the_rcd, passed_mode)
 	switch(passed_mode)
@@ -674,7 +735,7 @@
 /obj/structure/window/rcd_act(mob/living/user, obj/item/rcd/the_rcd, passed_mode)
 	switch(passed_mode)
 		if(RCD_DECONSTRUCT)
-			to_chat(user, span("notice", "You deconstruct \the [src]."))
+			to_chat(user, SPAN_NOTICE("You deconstruct \the [src]."))
 			qdel(src)
 			return TRUE
 	return FALSE

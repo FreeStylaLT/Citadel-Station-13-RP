@@ -38,6 +38,8 @@
 	var/permit_size_trample = TRUE
 	/// pending refactor - allow being picked up when not a micro?
 	var/permit_size_pickup = TRUE
+	/// Following the above - allow stripper gun on us?
+	var/permit_stripped
 
 //
 // Hook for generic creation of stuff on new creatures
@@ -171,9 +173,9 @@
 			if(!istype(B))
 				return TRUE
 			visible_message("<span class='warning'>[user] is trying to stuff a beacon into [src]'s [lowertext(B.name)]!</span>","<span class='warning'>[user] is trying to stuff a beacon into you!</span>")
-			if(do_after(user,30,src))
-				user.drop_item()
-				I.forceMove(B)
+			if(do_after(user, 30, src))
+				if(!user.attempt_insert_item_for_installation(I, B))
+					return
 				return TRUE
 			else
 				return TRUE //You don't get to hit someone 'later'
@@ -238,6 +240,7 @@
 	P.permit_sizegun = src.permit_sizegun
 	P.permit_size_trample = src.permit_size_trample
 	P.permit_size_pickup = src.permit_size_pickup
+	P.permit_stripped = src.permit_stripped
 
 	var/list/serialized = list()
 	for(var/belly in src.vore_organs)
@@ -271,6 +274,7 @@
 	permit_sizegun = P.permit_sizegun
 	permit_size_trample = P.permit_size_trample
 	permit_size_pickup = P.permit_size_pickup
+	permit_stripped = P.permit_stripped
 
 	release_vore_contents(silent = TRUE)
 	vore_organs.Cut()
@@ -631,7 +635,7 @@
 		to_chat(src,"<span class='warning'>You either don't have a belly selected, or don't have a belly!</span>")
 		return
 
-	var/obj/item/I = get_active_hand()
+	var/obj/item/I = get_active_held_item()
 	if(!I)
 		to_chat(src, "<span class='notice'>You are not holding anything.</span>")
 		return
@@ -665,7 +669,6 @@
 						return
 					visible_message("<span class='warning'>[src] successfully makes [P] disappear!</span>")
 			to_chat(src, "<span class='notice'>You can taste the sweet flavor of delicious technology.</span>")
-			drop_item()
 			I.forceMove(vore_selected)
 			updateVRPanel()
 			return
@@ -675,11 +678,12 @@
 				to_chat(src, "<span class='warning'>There's something inside!</span>")
 				return
 
-		drop_item()
-		I.forceMove(vore_selected)
+		if(!attempt_insert_item_for_installation(I, vore_selected))
+			return
+
 		updateVRPanel()
 
-		log_admin("VORE: [src] used Eat Trash to swallow [I].")
+		log_admin("LOG: [src] used Eat Trash to swallow [I].")
 
 		if(istype(I,/obj/item/flashlight/flare) || istype(I,/obj/item/flame/match) || istype(I,/obj/item/storage/box/matches))
 			to_chat(src, "<span class='notice'>You can taste the flavor of spicy cardboard.</span>")
@@ -740,8 +744,17 @@
 
 /mob/living/examine(mob/user)
 	. = ..()
-	if(showvoreprefs)
-		. += "<span class='deptradio'><a href='?src=\ref[src];vore_prefs=1'>\[Mechanical Vore Preferences\]</a></span>"
+
+	if(ooc_notes)
+		. += SPAN_BOLDNOTICE("OOC Notes: <a href='?src=\ref[src];ooc_notes=1'>\[View\]</a>")
+
+	if(print_flavor_text())
+		. += "\n[print_flavor_text()]"
+
+	. += attempt_vr(src,"examine_bellies",args)
+
+	if(showvoreprefs && ckey) //ckey so non-controlled mobs don't display it.
+		. += SPAN_BOLDNOTICE("<a href='?src=\ref[src];vore_prefs=1'>\[Mechanical Vore Preferences\]</a>")
 
 /mob/living/Topic(href, href_list)	//Can't find any instances of Topic() being overridden by /mob/living in polaris' base code, even though /mob/living/carbon/human's Topic() has a ..() call
 	if(href_list["vore_prefs"])

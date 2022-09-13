@@ -2,7 +2,7 @@
 /datum/gear/suit
 	name = "Apron - Blue"
 	path = /obj/item/clothing/suit/storage/apron
-	slot = slot_wear_suit
+	slot = SLOT_ID_SUIT
 	sort_category = "Suits and Overwear"
 
 /datum/gear/suit/apron_white
@@ -141,37 +141,9 @@ datum/gear/suit/duster
 	name = "Labcoat"
 	path = /obj/item/clothing/suit/storage/toggle/labcoat
 
-/datum/gear/suit/labcoat/blue
-	name = "Labcoat - Blue"
-	path = /obj/item/clothing/suit/storage/toggle/labcoat/blue
-
-/datum/gear/suit/labcoat/blue_edge
-	name = "Labcoat - Blue-Edged"
-	path = /obj/item/clothing/suit/storage/toggle/labcoat/blue_edge
-
 /datum/gear/suit/labcoat/green
 	name = "Labcoat - Green"
 	path = /obj/item/clothing/suit/storage/toggle/labcoat/green
-
-/datum/gear/suit/labcoat/orange
-	name = "Labcoat - Orange"
-	path = /obj/item/clothing/suit/storage/toggle/labcoat/orange
-
-/datum/gear/suit/labcoat/purple
-	name = "Labcoat - Purple"
-	path = /obj/item/clothing/suit/storage/toggle/labcoat/purple
-
-/datum/gear/suit/labcoat/pink
-	name = "Labcoat - Pink"
-	path = /obj/item/clothing/suit/storage/toggle/labcoat/pink
-
-/datum/gear/suit/labcoat/red
-	name = "Labcoat - Red"
-	path = /obj/item/clothing/suit/storage/toggle/labcoat/red
-
-/datum/gear/suit/labcoat/yellow
-	name = "Labcoat - Yellow"
-	path = /obj/item/clothing/suit/storage/toggle/labcoat/yellow
 
 /datum/gear/suit/overalls
 	name = "Overalls"
@@ -203,6 +175,18 @@ datum/gear/suit/duster
 	path = /obj/item/clothing/accessory/poncho/roles/cloak/custom
 
 /datum/gear/suit/roles/poncho/cloak/colorable/New()
+	..()
+	gear_tweaks += gear_tweak_free_color_choice
+
+/datum/gear/suit/halfcloak
+	name = "Rough Half Cloak (Tan)"
+	path = /obj/item/clothing/accessory/poncho/rough_cloak/tan
+
+/datum/gear/suit/halfcloak/colorable
+	name = "Rough Half Cloak (Colorable)"
+	path = /obj/item/clothing/accessory/poncho/rough_cloak
+
+/datum/gear/suit/halfcloak/colorable/New()
 	..()
 	gear_tweaks += gear_tweak_free_color_choice
 
@@ -417,3 +401,43 @@ datum/gear/suit/duster
 /datum/gear/suit/jacket_stripe
 	name = "Striped Jacket"
 	path = /obj/item/clothing/suit/storage/stripe_jacket
+
+/datum/gear/suit/jacket_darkfur
+	name = "Vexatious Coat w/ Dark Fur Lining"
+	path = /obj/item/clothing/suit/darkfur
+
+/datum/gear/suit/vainglorious
+	name = "Vainglorious Hoodie"
+	path = /obj/item/clothing/suit/storage/hooded/vainglorious
+
+/datum/gear/suit/raincoat
+	name = "Raincoat"
+	path = /obj/item/clothing/suit/storage/hooded/raincoat
+
+/datum/gear/suit/pullover
+	name = "Pullover Hoodie - Selection"
+	path = /obj/item/clothing/suit/storage/pullover
+
+/datum/gear/suit/pullover/New()
+	..()
+	var/list/pullovers = list()
+	for(var/pullover_style in typesof(/obj/item/clothing/suit/storage/pullover))
+		var/obj/item/clothing/suit/storage/pullover/pullover = pullover_style
+		pullovers[initial(pullover.name)] = pullover
+	gear_tweaks += new/datum/gear_tweak/path(sortTim(pullovers, /proc/cmp_text_asc))
+
+/datum/gear/suit/antediluvian
+	name = "Antediluvian Cloak"
+	path = /obj/item/clothing/accessory/poncho/antediluvian
+
+/datum/gear/suit/rainponcho
+	name = "Plastic Raincoat"
+	path = /obj/item/clothing/suit/storage/hooded/rainponcho
+
+/datum/gear/suit/mekkyaku
+	name = "Mekkyaku Hoodie"
+	path = /obj/item/clothing/suit/storage/mekkyaku
+
+/datum/gear/suit/utility_fur_coat
+	name = "Utility Fur Coat"
+	path = /obj/item/clothing/suit/storage/utility_fur_coat

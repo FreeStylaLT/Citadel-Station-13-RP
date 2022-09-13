@@ -1,9 +1,11 @@
 //wrapper macros for easier grepping
 #define DIRECT_OUTPUT(A, B) A << B
+#define DIRECT_INPUT(A, B) A >> B
 #define SEND_IMAGE(target, image) DIRECT_OUTPUT(target, image)
 #define SEND_SOUND(target, sound) DIRECT_OUTPUT(target, sound)
 #define SEND_TEXT(target, text) DIRECT_OUTPUT(target, text)
 #define WRITE_FILE(file, text) DIRECT_OUTPUT(file, text)
+#define READ_FILE(file, text) DIRECT_INPUT(file, text)
 #ifdef EXTOOLS_LOGGING
 // proc hooked, so we can just put in standard TRUE and FALSE
 #define WRITE_LOG(log, text) extools_log_write(log,text,TRUE)
@@ -28,9 +30,31 @@
 //print a testing-mode debug message to world.log and world
 #ifdef TESTING
 #define testing(msg) log_world("## TESTING: [msg]"); to_chat(world, "## TESTING: [msg]")
+
+GLOBAL_LIST_INIT(testing_global_profiler, list("_PROFILE_NAME" = "Global"))
+// we don't really check if a word or name is used twice, be aware of that
+#define testing_profile_start(NAME, LIST) LIST[NAME] = world.timeofday
+#define testing_profile_current(NAME, LIST) round((world.timeofday - LIST[NAME])/10,0.1)
+#define testing_profile_output(NAME, LIST) testing("[LIST["_PROFILE_NAME"]] profile of [NAME] is [testing_profile_current(NAME,LIST)]s")
+#define testing_profile_output_all(LIST) { for(var/_NAME in LIST) { testing_profile_current(,_NAME,LIST); }; };
 #else
 #define testing(msg)
+#define testing_profile_start(NAME, LIST)
+#define testing_profile_current(NAME, LIST)
+#define testing_profile_output(NAME, LIST)
+#define testing_profile_output_all(LIST)
 #endif
+
+#define testing_profile_global_start(NAME) testing_profile_start(NAME,GLOB.testing_global_profiler)
+#define testing_profile_global_current(NAME) testing_profile_current(NAME, GLOB.testing_global_profiler)
+#define testing_profile_global_output(NAME) testing_profile_output(NAME, GLOB.testing_global_profiler)
+#define testing_profile_global_output_all testing_profile_output_all(GLOB.testing_global_profiler)
+
+#define testing_profile_local_init(PROFILE_NAME) var/list/_timer_system = list( "_PROFILE_NAME" = PROFILE_NAME, "_start_of_proc" = world.timeofday )
+#define testing_profile_local_start(NAME) testing_profile_start(NAME, _timer_system)
+#define testing_profile_local_current(NAME) testing_profile_current(NAME, _timer_system)
+#define testing_profile_local_output(NAME) testing_profile_output(NAME, _timer_system)
+#define testing_profile_local_output_all testing_profile_output_all(_timer_system)
 
 #if defined(UNIT_TESTS) || defined(SPACEMAN_DMM)
 /proc/log_test(text)
@@ -38,6 +62,18 @@
 	SEND_TEXT(world.log, text)
 #endif
 
+#if defined(REFERENCE_DOING_IT_LIVE)
+#define log_reftracker(msg) log_harddel("## REF SEARCH [msg]")
+
+/proc/log_harddel(text)
+	WRITE_LOG(GLOB.harddel_log, text)
+
+#elif defined(REFERENCE_TRACKING) // Doing it locally
+#define log_reftracker(msg) log_world("## REF SEARCH [msg]")
+
+#else //Not tracking at all
+#define log_reftracker(msg)
+#endif
 
 /* Items with ADMINPRIVATE prefixed are stripped from public logs. */
 /proc/log_admin(text)
@@ -157,6 +193,12 @@
 
 /proc/log_href(text)
 	WRITE_LOG(GLOB.world_href_log, "HREF: [text]")
+
+/proc/log_sql(text)
+	WRITE_LOG(GLOB.sql_error_log, "SQL: [text]")
+
+/proc/log_query_debug(text)
+	// does nothing right now, sorry
 
 /proc/log_qdel(text)
 	WRITE_LOG(GLOB.world_qdel_log, "QDEL: [text]")
@@ -433,3 +475,16 @@
 
 /client/proc/simple_info_line()
 	return "[key_name(src)] ([AREACOORD(mob)])"
+
+/**
+ * Writes to a special log file if the log_suspicious_login config flag is set,
+ * which is intended to contain all logins that failed under suspicious circumstances.
+ *
+ * Mirrors this log entry to log_access when access_log_mirror is TRUE, so this proc
+ * doesn't need to be used alongside log_access and can replace it where appropriate.
+ */
+/proc/log_suspicious_login(text, access_log_mirror = TRUE)
+	if (CONFIG_GET(flag/log_suspicious_login))
+		WRITE_LOG(GLOB.world_suspicious_login_log, "SUSPICIOUS_ACCESS: [text]")
+	if(access_log_mirror)
+		log_access(text)

@@ -13,8 +13,9 @@ obj/structure/windoor_assembly
 	name = "windoor assembly"
 	icon = 'icons/obj/doors/windoor.dmi'
 	icon_state = "l_windoor_assembly01"
-	anchored = 0
-	density = 0
+	anchored = FALSE
+	density = FALSE
+	pass_flags_self = ATOM_PASS_GLASS
 	dir = NORTH
 	w_class = ITEMSIZE_NORMAL
 
@@ -55,19 +56,18 @@ obj/structure/windoor_assembly/Destroy()
 	icon_state = "[facing]_[secure]windoor_assembly[state]"
 
 /obj/structure/windoor_assembly/CanAllowThrough(atom/movable/mover, turf/target)
-	if(istype(mover) && mover.checkpass(PASSGLASS))
+	if(!(get_dir(loc, mover) & dir))
+		// if it isn't our side we don't care
 		return TRUE
-	if(get_dir(loc, target) == dir) //Make sure looking at appropriate border
-		return !density
-	return TRUE
+	return ..()
 
-/obj/structure/windoor_assembly/CheckExit(atom/movable/mover as mob|obj, turf/target as turf)
-	if(istype(mover) && mover.checkpass(PASSGLASS))
-		return 1
-	if(get_dir(loc, target) == dir)
-		return !density
-	else
-		return 1
+/obj/structure/windoor_assembly/CheckExit(atom/movable/AM, atom/newLoc)
+	if(!(get_dir(loc, AM) & dir))
+		// ditto
+		return TRUE
+	if(check_standard_flag_pass(AM))
+		return TRUE
+	return !density
 
 /obj/structure/windoor_assembly/proc/rename_door(mob/living/user)
 	var/t = sanitizeSafe(input(user, "Enter the name for the windoor.", src.name, src.created_name), MAX_NAME_LEN)
@@ -161,10 +161,10 @@ obj/structure/windoor_assembly/Destroy()
 				user.visible_message("[user] installs the electronics into the airlock assembly.", "You start to install electronics into the airlock assembly.")
 
 				if(do_after(user, 40))
-					if(!src) return
-
-					user.drop_item()
-					W.loc = src
+					if(!src)
+						return
+					if(!user.attempt_insert_item_for_installation(W, src))
+						return
 					to_chat(user,"<span class='notice'>You've installed the airlock electronics!</span>")
 					step = 2
 					src.electronics = W

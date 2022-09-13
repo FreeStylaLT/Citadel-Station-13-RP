@@ -78,7 +78,7 @@
 	if(.)
 		buckled_mobs[M] = "riding"
 
-/mob/living/carbon/human/MouseDrop_T(mob/living/M, mob/living/user) //Prevention for forced relocation caused by can_buckle. Base proc has no other use.
+/mob/living/carbon/human/MouseDroppedOnLegacy(mob/living/M, mob/living/user) //Prevention for forced relocation caused by can_buckle. Base proc has no other use.
 	return
 
 /mob/living/carbon/human/proc/taur_mount(var/mob/living/M in living_mobs(1))
@@ -122,7 +122,7 @@
 
 /datum/sprite_accessory/tail/taur
 	name = "You should not see this..."
-	icon = 'icons/mob/vore/taurs_vr.dmi'
+	icon = 'icons/mob/sprite_accessories/taurs.dmi'
 	do_colouration = 1 // Yes color, using tail color
 	color_blend_mode = ICON_MULTIPLY  // The sprites for taurs are designed for ICON_MULTIPLY
 
@@ -157,7 +157,7 @@
 	var/msg_owner_stepunder		= "%owner runs between your legs." //Weird becuase in the case this is used, %owner is the 'bumper' (src)
 	var/msg_prey_stepunder		= "You run between %prey's legs." //Same, inverse
 	hide_body_parts	= list(BP_L_LEG, BP_L_FOOT, BP_R_LEG, BP_R_FOOT) //Exclude pelvis just in case.
-	clip_mask_icon = 'icons/mob/vore/taurs_vr.dmi'
+	clip_mask_icon = 'icons/mob/sprite_accessories/taurs.dmi'
 	clip_mask_state = "taur_clip_mask_def" //Used to clip off the lower part of suits & uniforms
 
 /datum/sprite_accessory/tail/taur/roiz_long_lizard // Not ACTUALLY a taur, but it uses 32x64 so it wouldn't fit in tails.dmi, and having it as a tail bugs up the sprite.
@@ -199,7 +199,7 @@
 /datum/sprite_accessory/tail/taur/wolf
 	name = "Wolf (Taur)"
 	icon_state = "wolf_s"
-	suit_sprites = 'icons/mob/taursuits_wolf_vr.dmi'
+	suit_sprites = 'icons/mob/clothing/taursuits_wolf.dmi'
 
 //TFF 22/11/19 - CHOMPStation port of fat taur sprites
 /datum/sprite_accessory/tail/taur/fatwolf
@@ -225,7 +225,7 @@
 /datum/sprite_accessory/tail/taur/naga
 	name = "Naga (Taur)"
 	icon_state = "naga_s"
-	suit_sprites = 'icons/mob/taursuits_naga_vr.dmi'
+	suit_sprites = 'icons/mob/clothing/taursuits_naga.dmi'
 
 	msg_owner_help_walk = "You carefully slither around %prey."
 	msg_prey_help_walk = "%owner's huge tail slithers past beside you!"
@@ -262,7 +262,7 @@
 /datum/sprite_accessory/tail/taur/horse
 	name = "Horse (Taur)"
 	icon_state = "horse_s"
-	suit_sprites = 'icons/mob/taursuits_horse_vr.dmi'
+	suit_sprites = 'icons/mob/clothing/taursuits_horse.dmi'
 
 	msg_owner_disarm_run = "You quickly push %prey to the ground with your hoof!"
 	msg_prey_disarm_run = "%owner pushes you down to the ground with their hoof!"
@@ -287,7 +287,7 @@
 /datum/sprite_accessory/tail/taur/cow
 	name = "Cow (Taur)"
 	icon_state = "cow_s"
-	suit_sprites = 'icons/mob/taursuits_cow_vr.dmi'
+	suit_sprites = 'icons/mob/clothing/taursuits_cow.dmi'
 
 	msg_owner_disarm_run = "You quickly push %prey to the ground with your hoof!"
 	msg_prey_disarm_run = "%owner pushes you down to the ground with their hoof!"
@@ -308,7 +308,7 @@
 	name = "Deer dual-color (Taur)"
 	icon_state = "deer_s"
 	extra_overlay = "deer_markings"
-	suit_sprites = 'icons/mob/taursuits_deer_vr.dmi'
+	suit_sprites = 'icons/mob/clothing/taursuits_deer.dmi'
 
 	msg_owner_disarm_run = "You quickly push %prey to the ground with your hoof!"
 	msg_prey_disarm_run = "%owner pushes you down to the ground with their hoof!"
@@ -328,7 +328,7 @@
 /datum/sprite_accessory/tail/taur/lizard
 	name = "Lizard (Taur)"
 	icon_state = "lizard_s"
-	suit_sprites = 'icons/mob/taursuits_lizard_vr.dmi'
+	suit_sprites = 'icons/mob/clothing/taursuits_lizard.dmi'
 
 /datum/sprite_accessory/tail/taur/lizard/lizard_2c
 	name = "Lizard dual-color (Taur)"
@@ -343,7 +343,7 @@
 /datum/sprite_accessory/tail/taur/spider
 	name = "Spider (Taur)"
 	icon_state = "spider_s"
-	suit_sprites = 'icons/mob/taursuits_spider_vr.dmi'
+	suit_sprites = 'icons/mob/clothing/taursuits_spider.dmi'
 
 	msg_owner_disarm_run = "You quickly push %prey to the ground with your leg!"
 	msg_prey_disarm_run = "%owner pushes you down to the ground with their leg!"
@@ -389,7 +389,7 @@
 /datum/sprite_accessory/tail/taur/feline
 	name = "Feline (Taur)"
 	icon_state = "feline_s"
-	suit_sprites = 'icons/mob/taursuits_feline_vr.dmi'
+	suit_sprites = 'icons/mob/clothing/taursuits_feline.dmi'
 
 //TFF 22/11/19 - CHOMPStation port of fat taur sprites
 /datum/sprite_accessory/tail/taur/fatfeline
@@ -420,7 +420,7 @@
 /datum/sprite_accessory/tail/taur/slug
 	name = "Slug (Taur)"
 	icon_state = "slug_s"
-	suit_sprites = 'icons/mob/taursuits_slug_vr.dmi'
+	suit_sprites = 'icons/mob/clothing/taursuits_slug.dmi'
 
 	msg_owner_help_walk = "You carefully slither around %prey."
 	msg_prey_help_walk = "%owner's huge tail slithers past beside you!"
@@ -457,13 +457,13 @@
 	name = "Drake (Taur)"
 	icon_state = "drake_s"
 	extra_overlay = "drake_markings"
-	suit_sprites = 'icons/mob/taursuits_drake_vr.dmi'
+	suit_sprites = 'icons/mob/clothing/taursuits_drake.dmi'
 
 /datum/sprite_accessory/tail/taur/otie
 	name = "Otie (Taur)"
 	icon_state = "otie_s"
 	extra_overlay = "otie_markings"
-	suit_sprites = 'icons/mob/taursuits_otie_vr.dmi'
+	suit_sprites = 'icons/mob/clothing/taursuits_otie.dmi'
 
 /datum/sprite_accessory/tail/taur/alraune/alraune_2c
 	name = "Alraune (dual color)"

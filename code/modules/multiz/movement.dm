@@ -57,8 +57,8 @@
 			else
 				to_chat(src, "<span class='warning'>You gave up on pulling yourself up.</span>")
 				return 0
-		else if(ismob(src)) //VOREStation Edit Start. Are they a mob, and are they currently flying??
-			var/mob/H = src
+		else if(ismob(src)) // Are they a mob, and are they currently flying??
+			var/mob/living/H = src
 			if(H.flying)
 				if(H.incapacitated(INCAPACITATION_ALL))
 					to_chat(src, "<span class='notice'>You can't fly in your current state.</span>")
@@ -75,7 +75,7 @@
 					return 0
 			else
 				to_chat(src, "<span class='warning'>Gravity stops you from moving upward.</span>")
-				return 0 //VOREStation Edit End.
+				return 0
 		else
 			to_chat(src, "<span class='warning'>Gravity stops you from moving upward.</span>")
 			return 0
@@ -141,9 +141,8 @@
 	if(hovering || is_incorporeal())
 		return TRUE
 
-	if(flying) //VOREStation Edit. Allows movement up/down with wings.
-		return 1 //VOREStation Edit
-
+	if(flying) // Allows movement up/down with wings.
+		return 1
 	if(Process_Spacemove())
 		return TRUE
 
@@ -206,7 +205,7 @@
 		return
 
 	if(ismob(src))
-		var/mob/H = src //VOREStation Edit Start. Flight on mobs.
+		var/mob/H = src // Flight on mobs.
 		if(H.flying) //Some other checks are done in the wings_toggle proc
 			if(H.nutrition > 2)
 				H.nutrition -= 0.5 //You use up 0.5 nutrition per TILE and tick of flying above open spaces. If people wanna flap their wings in the hallways, shouldn't penalize them for it. Lowered to make winged people less sad.
@@ -231,8 +230,8 @@
 		else if(ishuman(H)) //Needed to prevent 2 people from grabbing eachother in the air.
 			var/mob/living/carbon/human/F = H
 			if(F.grabbed_by.len) //If you're grabbed (presumably by someone flying) let's not have you fall. This also allows people to grab onto you while you jump over a railing to prevent you from falling!
-				var/obj/item/grab/G = F.get_active_hand()
-				var/obj/item/grab/J = F.get_inactive_hand()
+				var/obj/item/grab/G = F.get_active_held_item()
+				var/obj/item/grab/J = F.get_inactive_held_item()
 				if(istype(G) || istype(J))
 					//fall
 				else
@@ -259,7 +258,7 @@
 /obj/effect/can_fall()
 	return FALSE
 
-/obj/effect/decal/cleanable/can_fall()
+/obj/effect/debris/cleanable/can_fall()
 	return TRUE
 
 // These didn't fall anyways but better to nip this now just incase.
@@ -304,11 +303,11 @@
 	return falling_atom.fall_impact(src)
 
 /obj/structure/lattice/CanFallThru(atom/movable/mover as mob|obj, turf/target as turf)
-	return mover.checkpass(PASSGRILLE)
+	return check_standard_flag_pass(mover)
 
 // So you'll slam when falling onto a grille
 /obj/structure/lattice/CheckFall(var/atom/movable/falling_atom)
-	if(istype(falling_atom) && falling_atom.checkpass(PASSGRILLE))
+	if(check_standard_flag_pass(falling_atom))
 		return FALSE
 	return falling_atom.fall_impact(src)
 
@@ -350,7 +349,7 @@
 	return FALSE
 
 /atom/movable/proc/find_fall_target(var/turf/oldloc, var/turf/landing)
-	if(isopenspace(oldloc))
+	if(isopenturf(oldloc))
 		oldloc.visible_message("\The [src] falls down through \the [oldloc]!", "You hear something falling through the air.")
 
 	// If the turf has density, we give it first dibs
@@ -506,16 +505,16 @@
 		back.handleParachute()
 		return TRUE
 	if(s_store && s_store.isParachute())
-		back.handleParachute()
+		s_store.handleParachute()
 		return TRUE
 	if(belt && belt.isParachute())
-		back.handleParachute()
+		belt.handleParachute()
 		return TRUE
 	if(wear_suit && wear_suit.isParachute())
-		back.handleParachute()
+		wear_suit.handleParachute()
 		return TRUE
 	if(w_uniform && w_uniform.isParachute())
-		back.handleParachute()
+		w_uniform.handleParachute()
 		return TRUE
 	else
 		return parachuting

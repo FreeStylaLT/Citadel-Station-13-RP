@@ -33,6 +33,9 @@
 
 	meat_amount = 3
 	meat_type = /obj/item/reagent_containers/food/snacks/meat/corgi
+	bone_amount = 2
+	hide_amount = 5
+	hide_type = /obj/item/stack/animalhide/corgi
 
 	var/obj/item/inventory_head
 	var/obj/item/inventory_back
@@ -137,8 +140,10 @@
 	var/obj/movement_target
 	randomized = FALSE
 
-/mob/living/simple_mob/animal/passive/dog/pug/SirPogsley/Life()
-	..()
+/mob/living/simple_mob/animal/passive/dog/pug/SirPogsley/BiologicalLife(seconds, times_fired)
+	if((. = ..()))
+		return
+
 
 	//Feeding, chasing food, FOOOOODDDD
 	if(!stat && !resting && !buckled)
@@ -193,11 +198,12 @@
 	desc = "This is the HoP's trusty corgi. He does the best he can."
 	var/turns_since_scan = 0
 	var/obj/movement_target
-	makes_dirt = FALSE	//VOREStation edit: no more dirt
+	makes_dirt = FALSE
 	randomized = FALSE
 
-/mob/living/simple_mob/animal/passive/dog/corgi/Ian/Life()
-	..()
+/mob/living/simple_mob/animal/passive/dog/corgi/Ian/BiologicalLife(seconds, times_fired)
+	if((. = ..()))
+		return
 
 	//Not replacing with SA FollowTarget mechanics because Ian behaves... very... specifically.
 
@@ -268,8 +274,10 @@
 		return
 	..()
 
-/mob/living/simple_mob/animal/passive/dog/corgi/Lisa/Life()
-	..()
+/mob/living/simple_mob/animal/passive/dog/corgi/Lisa/BiologicalLife(seconds, times_fired)
+	if((. = ..()))
+		return
+
 
 	if(!stat && !resting && !buckled)
 		turns_since_scan++

@@ -46,7 +46,7 @@
 				if(SPECIES_SERGAL)
 					new /obj/item/digestion_remains/skull/sergal(src,owner)
 					skull_amount--
-				if(SPECIES_ZORREN_FLAT || SPECIES_ZORREN_HIGH)
+				if(SPECIES_ZORREN_FLAT, SPECIES_ZORREN_HIGH)
 					new /obj/item/digestion_remains/skull/zorren(src,owner)
 					skull_amount--
 				if(SPECIES_NEVREAN)
@@ -77,7 +77,7 @@
 	icon = 'icons/obj/bones_vr.dmi'
 	icon_state = "generic"
 	force = 0
-	throwforce = 0
+	throw_force = 0
 	item_state = "bone"
 	w_class = ITEMSIZE_SMALL
 	var/pred_ckey

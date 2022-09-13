@@ -42,8 +42,6 @@
 	var/load_offset_y = 0		//pixel_y offset for item overlay
 	var/mob_offset_y = 0		//pixel_y offset for mob overlay
 
-	//var/datum/riding/riding_datum = null //VOREStation Edit - Moved to movables.
-
 //-------------------------------------------
 // Standard procs
 //-------------------------------------------
@@ -162,7 +160,7 @@
 	healthcheck()
 
 /obj/vehicle/proc/adjust_health(amount)
-	health = between(0, health + amount, maxhealth)
+	health = clamp( health + amount, 0,  maxhealth)
 	healthcheck()
 
 /obj/vehicle/ex_act(severity)
@@ -259,7 +257,7 @@
 		new /obj/item/stack/rods(Tsec)
 		new /obj/item/stack/cable_coil/cut(Tsec)
 		new /obj/effect/gibspawner/robot(Tsec)
-		new /obj/effect/decal/cleanable/blood/oil(src.loc)
+		new /obj/effect/debris/cleanable/blood/oil(src.loc)
 
 		if(cell)
 			cell.forceMove(Tsec)
@@ -298,9 +296,9 @@
 		return
 	if(!istype(C))
 		return
+	if(!H.attempt_insert_item_for_installation(C, src))
+		return
 
-	H.drop_from_inventory(C)
-	C.forceMove(src)
 	cell = C
 	powercheck()
 	to_chat(usr, "<span class='notice'>You install [C] in [src].</span>")
@@ -312,12 +310,11 @@
 		return
 
 	to_chat(usr, "<span class='notice'>You remove [cell] from [src].</span>")
-	cell.forceMove(get_turf(H))
-	H.put_in_hands(cell)
+	H.grab_item_from_interacted_with(cell, src)
 	cell = null
 	powercheck()
 
-/obj/vehicle/proc/RunOver(var/mob/living/carbon/human/H)
+/obj/vehicle/proc/RunOver(var/mob/living/M)
 	return		//write specifics for different vehicles
 
 //-------------------------------------------
@@ -419,7 +416,7 @@
 	user.do_attack_animation(src)
 	src.health -= damage
 	if(mechanical && prob(10))
-		new /obj/effect/decal/cleanable/blood/oil(src.loc)
+		new /obj/effect/debris/cleanable/blood/oil(src.loc)
 	spawn(1) healthcheck()
 	return 1
 
@@ -428,6 +425,6 @@
 		return
 	src.health -= damage
 	if(mechanical && prob(10))
-		new /obj/effect/decal/cleanable/blood/oil(src.loc)
+		new /obj/effect/debris/cleanable/blood/oil(src.loc)
 	spawn(1) healthcheck()
 	return 1

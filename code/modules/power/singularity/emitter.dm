@@ -1,5 +1,5 @@
-#define EMITTER_DAMAGE_POWER_TRANSFER 500 //used to transfer power to containment field generators
-
+///used to transfer power to containment field generators
+#define EMITTER_DAMAGE_POWER_TRANSFER 500
 /obj/machinery/power/emitter
 	name = "emitter"
 	desc = "It is a heavy duty industrial laser."
@@ -53,7 +53,7 @@
 	..()
 
 /obj/machinery/power/emitter/update_icon()
-	if (active && powernet && avail(active_power_usage))
+	if (active && powernet && avail(active_power_usage * 0.001))
 		icon_state = "emitter_+a"
 	else
 		icon_state = "emitter"
@@ -99,7 +99,7 @@
 	return 1
 
 /obj/machinery/power/emitter/process(delta_time)
-	if(stat & (BROKEN))
+	if(machine_stat & (BROKEN))
 		return
 	if(src.state != 2 || (!powernet && active_power_usage))
 		src.active = 0
@@ -107,7 +107,7 @@
 		return
 	if(((src.last_shot + src.fire_delay) <= world.time) && (src.active == 1))
 
-		var/actual_load = draw_power(active_power_usage)
+		var/actual_load = draw_power(active_power_usage * 0.001) * 1000
 		if(actual_load >= active_power_usage) //does the laser have enough power to shoot?
 			if(!powered)
 				powered = 1
@@ -207,7 +207,7 @@
 					to_chat(user, "<span class='warning'>You need more welding fuel to complete this task.</span>")
 		return
 
-	if(istype(W, /obj/item/stack/material) && W.get_material_name() == DEFAULT_WALL_MATERIAL)
+	if(istype(W, /obj/item/stack/material) && W.get_material_name() == MAT_STEEL)
 		var/amt = CEILING(( initial(integrity) - integrity)/10, 1)
 		if(!amt)
 			to_chat(user, "<span class='notice'>\The [src] is already fully repaired.</span>")
@@ -256,9 +256,9 @@
 	adjust_integrity(-1000) // This kills the emitter.
 
 /obj/machinery/power/emitter/proc/adjust_integrity(amount)
-	integrity = between(0, integrity + amount, initial(integrity))
+	integrity = clamp( integrity + amount, 0,  initial(integrity))
 	if(integrity == 0)
-		if(powernet && avail(active_power_usage)) // If it's powered, it goes boom if killed.
+		if(powernet && avail(active_power_usage * 0.001)) // If it's powered, it goes boom if killed.
 			visible_message(src, "<span class='danger'>\The [src] explodes violently!</span>", "<span class='danger'>You hear an explosion!</span>")
 			explosion(get_turf(src), 1, 2, 4)
 		else

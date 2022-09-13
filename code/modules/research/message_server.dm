@@ -90,7 +90,7 @@ var/global/list/obj/machinery/message_server/message_servers = list()
 /obj/machinery/message_server/process(delta_time)
 	//if(decryptkey == "password")
 	//	decryptkey = generateKey()
-	if(active && (stat & (BROKEN|NOPOWER)))
+	if(active && (machine_stat & (BROKEN|NOPOWER)))
 		active = 0
 		return
 	update_icon()
@@ -143,25 +143,23 @@ var/global/list/obj/machinery/message_server/message_servers = list()
 	return
 
 /obj/machinery/message_server/attackby(obj/item/O as obj, mob/living/user as mob)
-	if (active && !(stat & (BROKEN|NOPOWER)) && (spamfilter_limit < MESSAGE_SERVER_DEFAULT_SPAM_LIMIT*2) && \
-		istype(O,/obj/item/circuitboard/message_monitor))
+	if (active && !(machine_stat & (BROKEN|NOPOWER)) && (spamfilter_limit < MESSAGE_SERVER_DEFAULT_SPAM_LIMIT*2) && \
+		istype(O, /obj/item/circuitboard/message_monitor))
+		if(!user.attempt_consume_item_for_construction(O))
+			return
 		spamfilter_limit += round(MESSAGE_SERVER_DEFAULT_SPAM_LIMIT / 2)
-		user.drop_item()
-		qdel(O)
 		to_chat(user, "You install additional memory and processors into message server. Its filtering capabilities been enhanced.")
 	else
-		..(O, user)
+		return ..(O, user)
 
-/obj/machinery/message_server/update_icon()
-	if((stat & (BROKEN|NOPOWER)))
+/obj/machinery/message_server/update_icon_state()
+	. = ..()
+	if((machine_stat & (BROKEN|NOPOWER)))
 		icon_state = "server-nopower"
 	else if (!active)
 		icon_state = "server-off"
 	else
 		icon_state = "server-on"
-
-	return
-
 
 /datum/feedback_variable
 	var/variable
@@ -298,7 +296,7 @@ var/obj/machinery/blackbox_recorder/blackbox
 	var/pda_msg_amt = 0
 	var/rc_msg_amt = 0
 
-	for(var/obj/machinery/message_server/MS in machines)
+	for(var/obj/machinery/message_server/MS in GLOB.machines)
 		if(MS.pda_msgs.len > pda_msg_amt)
 			pda_msg_amt = MS.pda_msgs.len
 		if(MS.rc_msgs.len > rc_msg_amt)
@@ -338,12 +336,17 @@ var/obj/machinery/blackbox_recorder/blackbox
 	if(!feedback) return
 
 	round_end_data_gathering() //round_end time logging and some other data processing
-	establish_db_connection()
-	if(!dbcon.IsConnected()) return
+
+	if(!SSdbcore.Connect())
+		return
+
 	var/round_id
 
-	var/DBQuery/query = dbcon.NewQuery("SELECT MAX(round_id) AS round_id FROM erro_feedback")
-	query.Execute()
+	var/datum/db_query/query = SSdbcore.RunQuery(
+		"SELECT MAX(ronud_id) AS round_id FROM [format_table_name("feedback")]",
+		list()
+	)
+
 	while(query.NextRow())
 		round_id = query.item[1]
 
@@ -352,16 +355,15 @@ var/obj/machinery/blackbox_recorder/blackbox
 	round_id++
 
 	for(var/datum/feedback_variable/FV in feedback)
-		var/sql = "INSERT INTO erro_feedback VALUES (null, Now(), [round_id], \"[FV.get_variable()]\", [FV.get_value()], \"[FV.get_details()]\")"
-		var/DBQuery/query_insert = dbcon.NewQuery(sql)
-		query_insert.Execute()
-
-// Sanitize inputs to avoid SQL injection attacks
-proc/sql_sanitize_text(var/text)
-	text = replacetext(text, "'", "''")
-	text = replacetext(text, ";", "")
-	text = replacetext(text, "&", "")
-	return text
+		SSdbcore.RunQuery(
+			"INSERT INTO [format_table_name("feedback")] VALUES (null, Now(), :round_id, :variable, :value, :details)",
+			list(
+				"round_id" = "[round_id]",
+				"variable" = "[FV.get_variable()]",
+				"value" = "[FV.get_value()]",
+				"details" = "[FV.get_details()]"
+			)
+		)
 
 proc/feedback_set(var/variable,var/value)
 	if(!blackbox) return

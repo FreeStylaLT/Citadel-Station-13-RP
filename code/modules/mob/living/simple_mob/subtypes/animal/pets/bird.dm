@@ -21,7 +21,7 @@
 	icon_rest = "parrot-held"
 	icon_dead = "parrot-dead"
 
-	pass_flags = PASSTABLE
+	pass_flags = ATOM_PASS_TABLE
 
 	health = 30
 	maxHealth = 30
@@ -43,6 +43,9 @@
 
 	say_list_type = /datum/say_list/bird
 	holder_type = /obj/item/holder/bird
+
+	meat_amount = 1
+	bone_amount = 1
 
 /datum/say_list/bird
 	speak = list("Chirp!","Caw!","Screech!","Squawk!")

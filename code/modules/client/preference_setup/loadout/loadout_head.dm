@@ -2,7 +2,7 @@
 /datum/gear/head
 	name = "Bandana - Pirate-Red"
 	path = /obj/item/clothing/head/bandana
-	slot = slot_head
+	slot = SLOT_ID_HEAD
 	sort_category = "Hats and Headwear"
 
 /datum/gear/head/bandana_green
@@ -108,6 +108,10 @@
 /datum/gear/head/fedora/grey
 	name = "Fedora - Grey"
 	path = /obj/item/clothing/head/fedora/grey
+
+/datum/gear/head/fedora/floppy
+	name = "Wide Brimmed Hat"
+	path = /obj/item/clothing/head/fedora/floppy
 
 /datum/gear/head/hairflower
 	name = "Hair Flower Pin (Colorable)"

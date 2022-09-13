@@ -88,12 +88,15 @@
 		<b>Infectable Species:</b><br />
 		"}
 		var/f = 1
-		for(var/k in GLOB.all_species)
-			var/datum/species/S = GLOB.all_species[k]
+		var/list/species_cache = all_static_species_meta()
+		for(var/datum/species/S in species_cache)
 			if(S.get_virus_immune())
 				continue
-			if(!f) H += " | "
-			else f = 0
+			if(!f)
+				H += " | "
+			else
+				f = 0
+			var/k = S.name
 			H += "<a href='?src=\ref[src];what=species;toggle=[k]' style='color:[(k in species) ? "#006600" : "#ff0000"]'>[k]</a>"
 		H += {"
 		<a href="?src=\ref[src];what=species;reset=1" style="color:#0000aa">Reset</a>
@@ -150,7 +153,7 @@
 				else if(href_list["reset"])
 					species = list()
 				if(infectee)
-					if(!infectee.species || !(infectee.species.get_bodytype() in species))
+					if(!infectee.species || !(infectee.species.get_bodytype_legacy() in species))
 						infectee = null
 			if("ichance")
 				var/I = input("Input infection chance", "Infection Chance", infectionchance) as null|num
@@ -182,16 +185,16 @@
 				var/list/candidates = list()
 				for(var/mob/living/carbon/G in living_mob_list)
 					if(G.stat != DEAD && G.species)
-						if(G.species.get_bodytype() in species)
+						if(G.species.get_bodytype_legacy() in species)
 							candidates["[G.name][G.client ? "" : " (no client)"]"] = G
 						else
-							candidates["[G.name] ([G.species.get_bodytype()])[G.client ? "" : " (no client)"]"] = G
+							candidates["[G.name] ([G.species.get_bodytype_legacy()])[G.client ? "" : " (no client)"]"] = G
 				if(!candidates.len) to_chat(usr, "No possible candidates found!")
 
 				var/I = input("Choose initial infectee", "Infectee", infectee) as null|anything in candidates
 				if(!I || !candidates[I]) return
 				infectee = candidates[I]
-				species |= infectee.species.get_bodytype()
+				species |= infectee.species.get_bodytype_legacy()
 			if("go")
 				if(!antigens.len)
 					var/a = alert("This disease has no antigens; it will be impossible to permanently immunise anyone without them.\

@@ -112,11 +112,11 @@
 		/obj/item/clothing/under/customs/khaki = 4,
 		/obj/item/clothing/suit/colonial_redcoat = 4,
 		/obj/item/clothing/head/redcoat = 4,
-		/obj/item/gun/projectile/contender = 1,
-		/obj/item/ammo_magazine/s357 = 2,
+		/obj/item/gun/projectile/musket/pistol = 1,
+		/obj/item/ammo_casing/musket  = 12,
 		/obj/item/storage/belt/sheath = 1,
-		/obj/item/gun/projectile/shotgun/pump/rifle = 3,
-		/obj/item/ammo_magazine/clip/c762 = 6,
+		/obj/item/gun/projectile/musket = 3,
+		/obj/item/reagent_containers/glass/powder_horn = 4,
 		/obj/item/reagent_containers/food/drinks/tea = 8
 	)
 
@@ -128,8 +128,8 @@
 		/obj/item/clothing/under/tactical = 4,
 		/obj/item/clothing/accessory/storage/black_vest = 4,
 		/obj/item/clothing/head/soft/black = 4,
-		/obj/item/gun/projectile/automatic/p90 = 3,
-		/obj/item/ammo_magazine/m9mmp90 = 6,
+		/obj/item/gun/projectile/automatic/p90 = 2,
+		/obj/item/ammo_magazine/m57x28mmp90 = 4,
 		/obj/item/gun/projectile/p92x = 1,
 		/obj/item/ammo_magazine/m9mm = 2
 	)
@@ -204,4 +204,29 @@
 		/obj/item/clothing/suit/storage/trek/ds9 = 1,
 		/obj/item/gun/energy/retro = 4,
 		/obj/item/cell/device/weapon = 8
+	)
+
+//Plate Harness Kits
+/obj/item/storage/lockbox/limb_plate
+	name = "Lightweight Plating Kit"
+	desc = "A lockbox filled with a plate harness and modular limb armor."
+	req_access = list(access_security)
+	storage_slots = 5
+	starts_with = list(
+		/obj/item/clothing/suit/armor/plate_harness,
+		/obj/item/clothing/accessory/armor/limb_plate/arm_r,
+		/obj/item/clothing/accessory/armor/limb_plate/arm_l,
+		/obj/item/clothing/accessory/armor/limb_plate/leg_r,
+		/obj/item/clothing/accessory/armor/limb_plate/leg_l
+	)
+
+/obj/item/storage/lockbox/limb_plate/emt
+	name = "Lightweight Plating Kit (Paramedic)"
+	req_access = list(access_medical_equip)
+	starts_with = list(
+		/obj/item/clothing/suit/armor/plate_harness,
+		/obj/item/clothing/accessory/armor/limb_plate/arm_r/emt,
+		/obj/item/clothing/accessory/armor/limb_plate/arm_l/emt,
+		/obj/item/clothing/accessory/armor/limb_plate/leg_r/emt,
+		/obj/item/clothing/accessory/armor/limb_plate/leg_l/emt
 	)

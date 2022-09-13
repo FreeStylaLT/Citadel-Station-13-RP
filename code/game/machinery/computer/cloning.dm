@@ -64,8 +64,8 @@
 /obj/machinery/computer/cloning/attackby(obj/item/W as obj, mob/user as mob)
 	if (istype(W, /obj/item/disk/data)) //INSERT SOME DISKETTES
 		if (!diskette)
-			user.drop_item()
-			W.loc = src
+			if(!user.attempt_insert_item_for_installation(W, src))
+				return
 			diskette = W
 			to_chat(user, "You insert [W].")
 			updateUsrDialog()
@@ -98,7 +98,7 @@
 	user.set_machine(src)
 	add_fingerprint(user)
 
-	if(stat & (BROKEN|NOPOWER))
+	if(machine_stat & (BROKEN|NOPOWER))
 		return
 
 	updatemodules()

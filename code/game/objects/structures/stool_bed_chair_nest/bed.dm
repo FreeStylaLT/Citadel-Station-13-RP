@@ -13,7 +13,8 @@
 	icon = 'icons/obj/furniture.dmi'
 	icon_state = "bed"
 	pressure_resistance = 15
-	anchored = 1
+	anchored = TRUE
+	pass_flags_self = ATOM_PASS_TABLE | ATOM_PASS_OVERHEAD_THROW
 	can_buckle = 1
 	buckle_dir = SOUTH
 	buckle_lying = 1
@@ -26,7 +27,7 @@
 	. = ..(mapload)
 	remove_atom_colour(FIXED_COLOUR_PRIORITY)
 	if(!new_material)
-		new_material = DEFAULT_WALL_MATERIAL
+		new_material = MAT_STEEL
 	material = get_material_by_name(new_material)
 	if(!istype(material))
 		qdel(src)
@@ -46,9 +47,8 @@
 	// Base icon.
 	var/cache_key = "[base_icon]-[material.name]"
 	if(isnull(stool_cache[cache_key]))
-		var/image/I = image(icon, base_icon) //VOREStation Edit
-		//var/image/I = image('icons/obj/furniture.dmi', base_icon) //From Polaris Sync. Not sure if this is a better way of doing it or not. Uncomment if so.
-		if(applies_material_colour) //VOREStation Add - Goes with added var
+		var/image/I = image(icon, base_icon)
+		if(applies_material_colour)
 			I.color = material.icon_colour
 		stool_cache[cache_key] = I
 	overlays |= stool_cache[cache_key]
@@ -68,11 +68,6 @@
 	else
 		name = "[material.display_name] [initial(name)]"
 		desc += " It's made of [material.use_name]."
-
-/obj/structure/bed/CanAllowThrough(atom/movable/mover, turf/target)
-	if(istype(mover) && mover.checkpass(PASSTABLE))
-		return TRUE
-	return ..()
 
 /obj/structure/bed/ex_act(severity)
 	switch(severity)
@@ -98,14 +93,10 @@
 			to_chat(user, "\The [src] is already padded.")
 			return
 		var/obj/item/stack/C = W
-		if(C.get_amount() < 1) // How??
-			user.drop_from_inventory(C)
-			qdel(C)
-			return
 		var/padding_type //This is awful but it needs to be like this until tiles are given a material var.
-		if(istype(W,/obj/item/stack/tile/carpet))
+		if(istype(W, /obj/item/stack/tile/carpet))
 			padding_type = "carpet"
-		else if(istype(W,/obj/item/stack/material))
+		else if(istype(W, /obj/item/stack/material))
 			var/obj/item/stack/material/M = W
 			if(M.material && (M.material.flags & MATERIAL_PADDING))
 				padding_type = "[M.material.name]"
@@ -113,9 +104,6 @@
 			to_chat(user, "You cannot pad \the [src] with that.")
 			return
 		C.use(1)
-		if(!istype(loc, /turf))
-			user.drop_from_inventory(src)
-			forceMove(get_turf(src))
 		to_chat(user, "You add padding to \the [src].")
 		add_padding(padding_type)
 		return
@@ -318,16 +306,16 @@
 	update_icon()
 	return ..()
 
-/obj/structure/bed/roller/MouseDrop(over_object, src_location, over_location)
-	..()
+/obj/structure/bed/roller/OnMouseDropLegacy(over_object, src_location, over_location)
 	if((over_object == usr && (in_range(src, usr) || usr.contents.Find(src))))
-		if(!ishuman(usr))	return
+		if(!ishuman(usr))	return 0
 		if(has_buckled_mobs())	return 0
 		visible_message("[usr] collapses \the [src.name].")
 		new rollertype(get_turf(src))
 		spawn(0)
 			qdel(src)
-		return
+		return 0
+	return ..()
 
 /datum/category_item/catalogue/anomalous/precursor_a/alien_bed
 	name = "Precursor Alpha Object - Resting Contraption"

@@ -1,5 +1,5 @@
-#define VORE_VERSION	2	//This is a Define so you don't have to worry about magic numbers.
-
+///This is a Define so you don't have to worry about magic numbers.
+#define VORE_VERSION	2
 //
 // Overrides/additions to stock defines go here, as well as hooks. Sort them by
 // the object they are overriding. So all /mob/living together, etc.
@@ -36,6 +36,7 @@
 	var/permit_sizegun = TRUE
 	var/permit_size_trample = TRUE
 	var/permit_size_pickup = TRUE
+	var/permit_stripped = TRUE
 
 	//Mechanically required
 	var/path
@@ -110,6 +111,7 @@
 	permit_sizegun = json_from_file["permit_sizegun"]
 	permit_size_trample = json_from_file["permit_size_trample"]
 	permit_size_pickup = json_from_file["permit_size_pickup"]
+	permit_stripped = json_from_file["permit_stripped"]
 
 	//Quick sanitize
 	if(isnull(digestable))
@@ -134,6 +136,8 @@
 		permit_size_trample = TRUE
 	if(isnull(permit_size_pickup))
 		permit_size_pickup = TRUE
+	if(isnull(permit_stripped))
+		permit_stripped = TRUE
 	if(isnull(belly_prefs))
 		belly_prefs = list()
 
@@ -158,7 +162,8 @@
 			"belly_prefs"			= belly_prefs,
 			"permit_size_trample"	= permit_size_trample,
 			"permit_size_pickup"	= permit_size_pickup,
-			"permit_sizegun"		= permit_sizegun
+			"permit_sizegun"		= permit_sizegun,
+			"permit_stripped"		= permit_stripped
 		)
 
 	//List to JSON

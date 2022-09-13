@@ -1,12 +1,12 @@
 /obj/item/camera_assembly
 	name = "camera assembly"
 	desc = "A pre-fabricated security camera kit, ready to be assembled and mounted to a surface."
-	icon = 'icons/obj/monitors_vr.dmi' //VOREStation Edit - New Icons
+	icon = 'icons/obj/monitors_vr.dmi'
 	icon_state = "cameracase"
 	w_class = ITEMSIZE_SMALL
 	anchored = 0
 
-	matter = list(DEFAULT_WALL_MATERIAL = 700,"glass" = 300)
+	matter = list(MAT_STEEL = 700, MAT_GLASS = 300)
 
 	//	Motion, EMP-Proof, X-Ray
 	var/list/obj/item/possible_upgrades = list(/obj/item/assembly/prox_sensor, /obj/item/stack/material/osmium, /obj/item/stock_parts/scanning_module)
@@ -125,10 +125,10 @@
 
 	// Upgrades!
 	if(is_type_in_list(W, possible_upgrades) && !is_type_in_list(W, upgrades)) // Is a possible upgrade and isn't in the camera already.
+		if(!user.attempt_insert_item_for_installation(W, src))
+			return
 		to_chat(user, "You attach \the [W] into the assembly inner circuits.")
 		upgrades += W
-		user.remove_from_mob(W)
-		W.loc = src
 		return
 
 	// Taking out upgrades
@@ -137,7 +137,7 @@
 		if(U)
 			to_chat(user, "You unattach an upgrade from the assembly.")
 			playsound(src, W.usesound, 50, 1)
-			U.loc = get_turf(src)
+			user.grab_item_from_interacted_with(U, src)
 			upgrades -= U
 		return
 

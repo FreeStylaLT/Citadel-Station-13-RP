@@ -196,7 +196,7 @@
 			P.cable = new /obj/item/pai_cable(T)
 			if(ishuman(P.card.loc))
 				var/mob/living/carbon/human/H = P.card.loc
-				H.put_in_any_hand_if_possible(P.cable)
+				H.put_in_hands(P.cable)
 			T.visible_message("<span class='warning'>A port on \the [P] opens to reveal \the [P.cable].</span>")
 			return 1
 
@@ -285,8 +285,7 @@
 	toggle(mob/living/silicon/infomorph/user)
 		user.arHUD = !user.arHUD
 		if(user.plane_holder)
-			user.plane_holder.set_vis(VIS_CH_ID,user.arHUD)
-			user.plane_holder.set_vis(VIS_CH_HEALTH_VR,user.arHUD)
+			user.plane_holder.set_vis(VIS_AUGMENTED, user.arHUD)
 
 	is_active(mob/living/silicon/infomorph/user)
 		return user.arHUD
