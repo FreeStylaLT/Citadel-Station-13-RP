@@ -60,8 +60,11 @@
 	category = SPECIES_CATEGORY_ANGEL
 
 	blurb = {"
-	Dremachir lore is still a work in progress.  They are not actual supernatural creatures.  They are aliens.
-	They are not obsessed human genemodders.  They're just a race of aliens that look like demonss.  It's a big galaxy.
+	Dremachir are the divergent, over-mutated strain of Aurils that was left to fend for itself on the desert dunes of Drema.
+	'Chir' meaning corrupted, wrong in Auril tongue, they have adapted the moniker to one of pride. Their planet has grown to become
+	a bustling center of all sorts of cheap commerce, protected by the Auril fleets after a tumultuous war that left them a vassal state.
+	They are extremely divergent amongst themselves, hailing from one of the several megalopoli dotting the surface of the planet, or from the
+	dense networks underground, or from many of the smaller settlements inhabited by bandits, religious groups and other delinquents in the eyes of Aurils.
 	"}
 	catalogue_data = list(/datum/category_item/catalogue/fauna/dremachir)
 
@@ -100,4 +103,5 @@
 		/mob/living/carbon/human/proc/succubus_drain,
 		/mob/living/carbon/human/proc/succubus_drain_finalize,
 		/mob/living/carbon/human/proc/succubus_drain_lethal,
+		/mob/living/proc/toggle_pass_table,
 	)
