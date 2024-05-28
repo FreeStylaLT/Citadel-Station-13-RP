@@ -547,3 +547,7 @@
 	color = COLOR_CARGO_BROWN
 	paint_color = COLOR_WALL_GUNMETAL
 	stripe_color = COLOR_CARGO_BROWN
+
+/turf/simulated/wall/brick_wall
+	icon_state = "brick_wall"
+	base_icon_state = "wall"
